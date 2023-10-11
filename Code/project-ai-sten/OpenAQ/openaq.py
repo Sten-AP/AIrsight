@@ -16,7 +16,7 @@ response = requests.get(url=URL_OPENAQ, headers=HEADERS)
 client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
                          org=ORG, database=BUCKET, enable_gzip=True)
 
-with open('openaq_data.json', 'w') as file:
+with open('OpenAQ\openaq_data.json', 'w') as file:
     file.write(str(response.text))
 
 sensors = []
