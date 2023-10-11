@@ -1,15 +1,11 @@
 import requests
-import json
 import pandas as pd
-from datetime import datetime
-from influxdb_client.client.write_api import SYNCHRONOUS
-from influxdb_client_3 import InfluxDBClient3, Point, WritePrecision
+from influxdb_client_3 import InfluxDBClient3
 import time
-import os
 
 URL_INFLUDB = "http://localhost:8086"
 ORG = "AP"
-TOKEN = "s5ZKgMPFm4EEZigyyL87LvrVF3b0wAwTipKwtQsetKFr3PHsqbWto5hpkwTmGrYCitjbrq5dBS9n_hFF5yUjqA=="
+TOKEN = "wDRpb-ELk-yHqG98wB0bUr7B84aqnlYPeV8EsfV2ROOjTiWS12MWlPI7Ty39Cbvmq504f249srd--yKwlLVyIw=="
 BUCKET = "BE-OpenAQ-sensors"
 
 URL_OPENAQ = "https://api.openaq.org/v2/locations?limit=10000&page=1&offset=0&sort=desc&radius=1000&country_id=134&order_by=lastUpdated&dump_raw=false"
@@ -23,7 +19,7 @@ client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
 with open('openaq_data.json', 'w') as file:
     file.write(str(response.text))
 
-sensoren = []
+sensors = []
 for data in response.json()['results']:
     pm10, pm25 = -1, -1
     for parameter in data["parameters"]:
@@ -34,7 +30,7 @@ for data in response.json()['results']:
             if parameter['lastValue'] != -999:
                 pm25 = parameter["lastValue"]
 
-    sensoren.append({
+    sensors.append({
         'name': data['name'],
         'id': data['id'],
         'lat': data['coordinates']['latitude'],
@@ -44,12 +40,12 @@ for data in response.json()['results']:
         'time': NOW
     })
 
-sensoren_df = pd.DataFrame(sensoren).set_index('time')
-print(sensoren_df)
+sensors_df = pd.DataFrame(sensors).set_index('time')
+print(sensors_df)
 
 try:
-    client.write(sensoren_df, data_frame_measurement_name='sensor',
+    client.write(sensors_df, data_frame_measurement_name='sensor',
                  data_frame_tag_columns=['name', 'id'])
-except Exception as e:  
+except Exception as e:
     print(f"Error bij point: {e}")
 time.sleep(2)
