@@ -13,8 +13,7 @@ HEADERS = {"accept": "application/json"}
 NOW = pd.Timestamp.now(tz='UCT').floor('ms')
 
 response = requests.get(url=URL_OPENAQ, headers=HEADERS)
-client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
-                         org=ORG, database=BUCKET, enable_gzip=True)
+client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN, org=ORG, database=BUCKET, enable_gzip=True)
 
 with open('OpenAQ\openaq_data.json', 'w') as file:
     file.write(str(response.text))
