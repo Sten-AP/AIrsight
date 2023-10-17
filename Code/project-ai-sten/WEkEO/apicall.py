@@ -37,18 +37,23 @@ for zip_file in zip_files:
 ##Read the data
 print("============ncfiles=============")
 nc_files = [f for f in os.listdir(dir_name) if f.endswith('.nc')]
-nc_file_path = "./data/"+ nc_files[-1]
-nc_file = nc.Dataset(nc_file_path)
+
+def read_nc_variabels (dir_name, variable_names, path_number):
+        path =  dir_name + "/" + nc_files[path_number]
+        file = nc.Dataset(path)
+
+        variables_data = {}
+
+        for var_name in variable_names:
+            if var_name in file.variables:
+                variables_data[var_name] = file.variables[var_name][:]
+
+        print(file)
+        print(variables_data)
+        file.close()
+
 
 variable_names = ["pm10_conc", "pm2p5_conc"]
 variables_data = {}
 
-for var_name in variable_names:
-    if var_name in nc_file.variables:
-        variables_data[var_name] = nc_file.variables[var_name][:]
-
-nc_variables = nc_file.variables["pm10_conc"][:]
-print(nc_file)
-print(variables_data)
-
-nc_file.close()
+read_nc_variabels(dir_name, variable_names, -1)
