@@ -28,7 +28,8 @@
     {
       "name": "variable",
       "value": [
-        "nitrogen_dioxide"
+        "particulate_matter_2.5um",
+        "particulate_matter_10um"
       ]
     },
     {
