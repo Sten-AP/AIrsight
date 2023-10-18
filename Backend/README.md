@@ -1,11 +1,8 @@
-Sure, you can style your GitHub repo's README using Markdown. Here's the content you provided with Markdown formatting:
-
-```markdown
-# Flask Server
 ## Backend Application for Airsight Platform
 
 ### Create the Virtual Environment
 To create the virtual environment, run the following command:
+```markdown
 ```powershell
 py -m venv venv
 ```
@@ -35,5 +32,4 @@ py -m pip install -r requirements.txt
 To freeze the installed packages and update the `requirements.txt` file, use the following command:
 ```powershell
 py -m pip freeze > requirements.txt
-```
 ```
