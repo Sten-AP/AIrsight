@@ -1,14 +1,31 @@
-import numpy as np
-import datetime
+from influxdb_client_3 import InfluxDBClient3
 import pandas as pd
-import influxdb_client, os, time
-from influxdb_client import InfluxDBClient, Point, WritePrecision, WriteOptions
-from influxdb_client.client.write_api import SYNCHRONOUS
+import time
 import netCDF4 as nc
+import os
 
-file_name = '/filepath/RG_ArgoClim_Temperature_2019.nc'
-data_structure = nc.Dataset(file_name)
+URL_INFLUDB = "http://localhost:8086"
+ORG = "AP"
+TOKEN = "wDRpb-ELk-yHqG98wB0bUr7B84aqnlYPeV8EsfV2ROOjTiWS12MWlPI7Ty39Cbvmq504f249srd--yKwlLVyIw=="
+BUCKET = "WEkEO"
 
+BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = BASE_DIR+"./data"
+NOW = pd.Timestamp.now(tz='UCT').floor('ms')
 
+client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
+                         org=ORG, database=BUCKET, enable_gzip=True)
 
-print(data_structure.variables.keys())
+nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+
+# print(data_file.__dict__)  
+
+# data = {}
+# for data in data_file.dimensions.values():
+#     print(data)
+
+data_dict = {}
+for nc_file in nc_files:
+    file = nc.Dataset(DATA_DIR + "/" + nc_file)
+    for data in file.dimensions.values():
+        print(data)

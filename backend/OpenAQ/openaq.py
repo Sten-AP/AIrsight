@@ -2,20 +2,28 @@ import requests
 import pandas as pd
 from influxdb_client_3 import InfluxDBClient3
 import time
+import os
 
-URL_INFLUDB = "http://localhost:8086"
 ORG = "AP"
-TOKEN = "wDRpb-ELk-yHqG98wB0bUr7B84aqnlYPeV8EsfV2ROOjTiWS12MWlPI7Ty39Cbvmq504f249srd--yKwlLVyIw=="
 BUCKET = "BE-OpenAQ-sensors"
+URL_INFLUDB = "http://localhost:8086"
+TOKEN = "g437M2sQpWSzGsMehL7VbTVqMIRvG3xbG4z2iY03f0XBQuhI4m8XCgzPi0I7_i8iNEx1cYnnnta9r7iZbQfnOQ=="
 
 URL_OPENAQ = "https://api.openaq.org/v2/locations?limit=10000&page=1&offset=0&sort=desc&radius=1000&country_id=134&order_by=lastUpdated&dump_raw=false"
 HEADERS = {"accept": "application/json"}
+
 NOW = pd.Timestamp.now(tz='UCT').floor('ms')
+BASE_DIR = os.path.dirname(__file__)
+DATA_DIR = BASE_DIR+"./data"
 
 response = requests.get(url=URL_OPENAQ, headers=HEADERS)
 client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN, org=ORG, database=BUCKET, enable_gzip=True)
 
-with open('OpenAQ\openaq_data.json', 'w') as file:
+
+if not os.path.exists(DATA_DIR):
+    os.mkdir(DATA_DIR)
+
+with open(DATA_DIR+'\openaq_data.json', 'w') as file:
     file.write(str(response.text))
 
 sensors = []
