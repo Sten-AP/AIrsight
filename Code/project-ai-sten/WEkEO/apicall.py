@@ -1,9 +1,12 @@
 import pandas as pd
-import zipfile, os
+from zipfile import ZipFile
+import os
 import json
 import netCDF4 as nc
 from dotenv import load_dotenv
 from hda import Client, Configuration
+
+BASE_DIR = os.path.dirname(__file__)
 
 ##Setup
 load_dotenv()
@@ -11,13 +14,13 @@ user_name= os.getenv("USERNAME_WEKEO")
 password= os.getenv("PASSWORD")
 config = Configuration(user=user_name, password=password) #username/password van je wekeo account meegeven
 hda_client = Client(config=config)
-dir_name = "./data"
+dir_name = BASE_DIR+"./data"
 
 print("============data download=============")
 print(hda_client)
 
 ##The api call to wekeo (returns a zip file)
-with open('query.json', 'r') as f:
+with open(BASE_DIR+'/query.json', 'r') as f:
     data = json.load(f)
 print(data)
 
@@ -31,9 +34,12 @@ zip_files = [f for f in os.listdir(dir_name) if f.endswith('.zip')]
 print(zip_files)
 
 for zip_file in zip_files:
-    with zipfile.ZipFile(os.path.join(dir_name, zip_file), 'r') as zip_ref:
+    with ZipFile(os.path.join(dir_name, zip_file), 'r') as zip_ref:
         zip_ref.extractall(dir_name)
-
+        
+for zip_file in zip_files:
+    os.remove(zip_file)
+    
 ##Read the data
 print("============ncfiles=============")
 nc_files = [f for f in os.listdir(dir_name) if f.endswith('.nc')]
