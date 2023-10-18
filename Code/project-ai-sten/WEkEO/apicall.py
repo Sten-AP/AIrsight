@@ -17,7 +17,7 @@ print("============data download=============")
 print(hda_client)
 
 ##The api call to wekeo (returns a zip file)
-with open('cams_european_air_quality_forecast_data_descriptor.json', 'r') as f:
+with open('query.json', 'r') as f:
     data = json.load(f)
 print(data)
 
