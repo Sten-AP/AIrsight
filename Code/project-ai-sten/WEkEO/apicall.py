@@ -38,7 +38,7 @@ for zip_file in zip_files:
         zip_ref.extractall(dir_name)
         
 for zip_file in zip_files:
-    os.remove(zip_file)
+    os.remove(os.path.join(dir_name, zip_file))
     
 ##Read the data
 print("============ncfiles=============")
