@@ -5,6 +5,7 @@ import json
 import netCDF4 as nc
 from dotenv import load_dotenv
 from hda import Client, Configuration
+from shutil import rmtree
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
@@ -76,7 +77,11 @@ query = {
     {
       "name": "leadtime_hour",
       "value": [
-        "0"
+        "0",
+        "6",
+        "12",
+        "18",
+        "24",
       ]
     },
     {
@@ -131,7 +136,7 @@ def read_nc_variabels (DATA_DIR, variable_names, path_number):
         for i, time_step in enumerate(time_steps):
             pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
             pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
-            print(f'Time Step {i}: PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}')
+            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}')
 
         file.close()
 
@@ -140,3 +145,13 @@ variable_names = ["pm10_conc", "pm2p5_conc"]
 variables_data = {}
 
 read_nc_variabels(DATA_DIR, variable_names, -1)
+
+
+##Delete the data files
+if os.path.exists(DATA_DIR):
+    try:
+        rmtree(DATA_DIR)  
+    except OSError as e:
+        print(f"Error: {e}")
+else:
+    print(f"Folder '{DATA_DIR}' does not exist.")
