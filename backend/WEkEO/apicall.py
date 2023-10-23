@@ -22,8 +22,8 @@ print("============data download=============")
 print(hda_client)
 
 ##The api call to wekeo (returns a zip file)
-lat = 51.3
-lon = 4.42
+lat = 51.281014
+lon = 4.329848
 box = 0.05
 
 bbox = [
@@ -44,8 +44,8 @@ query = {
   "dateRangeSelectValues": [
     {
       "name": "date",
-      "start": "2023-10-14T00:00:00.000Z",
-      "end": "2023-10-15T00:00:00.000Z"
+      "start": "2023-10-22T00:00:00.000Z",
+      "end": "2023-10-23T00:00:00.000Z"
     }
   ],
   "multiStringSelectValues": [
@@ -58,8 +58,12 @@ query = {
     {
       "name": "variable",
       "value": [
+        "carbon_monoxide",
+        "particulate_matter_10um",
         "particulate_matter_2.5um",
-        "particulate_matter_10um"
+        "sulphur_dioxide",
+        "ozone",
+        "nitrogen_dioxide"
       ]
     },
     {
@@ -125,8 +129,6 @@ def read_nc_variabels (DATA_DIR, variable_names, path_number):
         file = nc.Dataset(path)
         variables_data = {}
         time_steps = file.variables['time'][:]
-
-
         print(file)
 
         for var_name in variable_names:
@@ -136,12 +138,16 @@ def read_nc_variabels (DATA_DIR, variable_names, path_number):
         for i, time_step in enumerate(time_steps):
             pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
             pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
-            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}')
+            no2_concentration = variables_data['no2_conc'][i, 0, 0, 0]
+            o3_concentration = variables_data['o3_conc'][i, 0, 0, 0]
+            so2_concentration = variables_data['so2_conc'][i, 0, 0, 0]
+            co_concentration = variables_data['co_conc'][i, 0, 0, 0]
+            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}, no2 Concentration = {no2_concentration}, o3 Concentration = {o3_concentration}, so2 Concentration = {so2_concentration}, co Concentration = {co_concentration}')
 
         file.close()
 
 
-variable_names = ["pm10_conc", "pm2p5_conc"]
+variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc"]
 variables_data = {}
 
 read_nc_variabels(DATA_DIR, variable_names, -1)
