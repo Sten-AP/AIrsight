@@ -43,8 +43,8 @@ query = {
   "dateRangeSelectValues": [
     {
       "name": "date",
-      "start": "2021-02-04T00:00:00.000Z",
-      "end": "2021-02-05T00:00:00.000Z"
+      "start": "2023-10-14T00:00:00.000Z",
+      "end": "2023-10-15T00:00:00.000Z"
     }
   ],
   "multiStringSelectValues": [
@@ -76,19 +76,7 @@ query = {
     {
       "name": "leadtime_hour",
       "value": [
-        "0",
-        "6",
-        "12",
-        "18",
-        "24",
-        "30",
-        "36",
-        "42",
-        "48",
-        "54",
-        "60",
-        "66",
-        "72"
+        "0"
       ]
     },
     {
@@ -130,15 +118,21 @@ nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
 def read_nc_variabels (DATA_DIR, variable_names, path_number):
         path =  DATA_DIR + "/" + nc_files[path_number]
         file = nc.Dataset(path)
-
         variables_data = {}
+        time_steps = file.variables['time'][:]
+
+
+        print(file)
 
         for var_name in variable_names:
             if var_name in file.variables:
                 variables_data[var_name] = file.variables[var_name][:]
+        
+        for i, time_step in enumerate(time_steps):
+            pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
+            pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
+            print(f'Time Step {i}: PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}')
 
-        print(file)
-        print(variables_data)
         file.close()
 
 
