@@ -43,8 +43,8 @@ query = {
   "dateRangeSelectValues": [
     {
       "name": "date",
-      "start": f"{NOW}T00:00:00.000Z",
-      "end": f"{NOW}T00:00:00.000Z"
+      "start": "2021-02-04T00:00:00.000Z",
+      "end": "2021-02-05T00:00:00.000Z"
     }
   ],
   "multiStringSelectValues": [
