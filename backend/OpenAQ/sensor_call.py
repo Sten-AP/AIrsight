@@ -23,8 +23,8 @@ with open(DATA_DIR+'\single_sensor_data.json', 'w') as file:
 
 sensors = []
 for data in response.json()['results']:
-    pm10, pm25, no2 = -1, -1, -1  # Initialize variables
-
+    pm10, pm25, no2 = -1, -1, -1
+    local_date = data['date']['local']
     if data['parameter'] == 'pm10':
         pm10 = data['value']
     elif data['parameter'] == 'pm25':
@@ -36,9 +36,9 @@ for data in response.json()['results']:
         'pm10': pm10,
         'pm25': pm25,
         'no2': no2,
-        'time': NOW
+        'local_date': local_date
     })
 
-sensors_df = pd.DataFrame(sensors).set_index('time')
+sensors_df = pd.DataFrame(sensors).set_index('local_date')
 print(sensors_df)
 
