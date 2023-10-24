@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-#from influxdb_client_3 import InfluxDBClient3
+from influxdb_client_3 import InfluxDBClient3
 import time
 import os
 
@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
 
 response = requests.get(url=URL_OPENAQ, headers=HEADERS)
-#client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN, org=ORG, database=BUCKET, enable_gzip=True)
+client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN, org=ORG, database=BUCKET, enable_gzip=True)
 
 
 if not os.path.exists(DATA_DIR):
@@ -49,11 +49,9 @@ for data in response.json()['results']:
 
 sensors_df = pd.DataFrame(sensors).set_index('time')
 print(sensors_df)
-"""
 try:
     client.write(sensors_df, data_frame_measurement_name='sensor',
                  data_frame_tag_columns=['name', 'id'])
 except Exception as e:
     print(f"Error bij point: {e}")
 time.sleep(2)
-"""
