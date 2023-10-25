@@ -1,163 +1,118 @@
 import pandas as pd
-from zipfile import ZipFile
 import os
-import json
 import netCDF4 as nc
 from dotenv import load_dotenv
 from hda import Client, Configuration
-from shutil import rmtree
+from influxdb_client_3 import InfluxDBClient3
+from influxdb_client import InfluxDBClient
+import pandas as pd
+import netCDF4 as nc
+import os
+import numpy as np
+from query import query_settings
+import shutil
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
 NOW = pd.Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 
-##Setup
-load_dotenv()
-user_name= os.getenv("USERNAME_WEKEO")
-password= os.getenv("PASSWORD")
-config = Configuration(user=user_name, password=password) #username/password van je wekeo account meegeven
-hda_client = Client(config=config)
+URL_INFLUDB = "http://localhost:8086"
+ORG = "AP"
+TOKEN = "I1SYSyvrMEmwP88EPLjxxxeQrk14TdIqid8Y4XmeEmqTveJczU5r9nb4x9l37JtXP0xt64-h5oZrplJN01jPMw=="
+BUCKET = "WEkEO"
 
-print("============data download=============")
-print(hda_client)
-
-##The api call to wekeo (returns a zip file)
-lat = 51.281014
-lon = 4.329848
-box = 0.05
-
-bbox = [
-    lon-box,
-    lat-box,
-    lon+box,
-    lat+box
-]
-
-query = {
-  "datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
-  "boundingBoxValues": [
-    {
-      "name": "area",
-      "bbox": bbox
-    }
-  ],
-  "dateRangeSelectValues": [
-    {
-      "name": "date",
-      "start": "2023-10-22T00:00:00.000Z",
-      "end": "2023-10-23T00:00:00.000Z"
-    }
-  ],
-  "multiStringSelectValues": [
-    {
-      "name": "model",
-      "value": [
-        "ensemble"
-      ]
-    },
-    {
-      "name": "variable",
-      "value": [
-        "carbon_monoxide",
-        "particulate_matter_10um",
-        "particulate_matter_2.5um",
-        "sulphur_dioxide",
-        "ozone",
-        "nitrogen_dioxide"
-      ]
-    },
-    {
-      "name": "type",
-      "value": [
-        "forecast"
-      ]
-    },
-    {
-      "name": "level",
-      "value": [
-        "0"
-      ]
-    },
-    {
-      "name": "leadtime_hour",
-      "value": [
-        "0",
-        "6",
-        "12",
-        "18",
-        "24",
-      ]
-    },
-    {
-      "name": "time",
-      "value": [
-        "00:00"
-      ]
-    }
-  ],
-  "stringChoiceValues": [
-    {
-      "name": "format",
-      "value": "netcdf"
-    }
-  ]
-}
-
-
-matches= hda_client.search(query)
-matches.download(DATA_DIR)
-
-
-##Unzip the file
-print("============zipfiles=============")
-zip_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.zip')]
-print(zip_files)
-
-for zip_file in zip_files:
-    with ZipFile(os.path.join(DATA_DIR, zip_file), 'r') as zip_ref:
-        zip_ref.extractall(DATA_DIR)
-        
-for zip_file in zip_files:
-    os.remove(os.path.join(DATA_DIR, zip_file))
-    
-##Read the data
-print("============ncfiles=============")
-nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
-
-def read_nc_variabels (DATA_DIR, variable_names, path_number):
-        path =  DATA_DIR + "/" + nc_files[path_number]
-        file = nc.Dataset(path)
-        variables_data = {}
-        time_steps = file.variables['time'][:]
-        print(file)
-
-        for var_name in variable_names:
-            if var_name in file.variables:
-                variables_data[var_name] = file.variables[var_name][:]
-        
-        for i, time_step in enumerate(time_steps):
-            pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
-            pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
-            no2_concentration = variables_data['no2_conc'][i, 0, 0, 0]
-            o3_concentration = variables_data['o3_conc'][i, 0, 0, 0]
-            so2_concentration = variables_data['so2_conc'][i, 0, 0, 0]
-            co_concentration = variables_data['co_conc'][i, 0, 0, 0]
-            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}, no2 Concentration = {no2_concentration}, o3 Concentration = {o3_concentration}, so2 Concentration = {so2_concentration}, co Concentration = {co_concentration}')
-
-        file.close()
-
-
-variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc"]
-variables_data = {}
-
-read_nc_variabels(DATA_DIR, variable_names, -1)
-
-
-##Delete the data files
 if os.path.exists(DATA_DIR):
-    try:
-        rmtree(DATA_DIR)  
-    except OSError as e:
-        print(f"Error: {e}")
-else:
-    print(f"Folder '{DATA_DIR}' does not exist.")
+    shutil.rmtree(DATA_DIR)
+
+def get_locations(response):
+    records = []
+    sensor_ids = []
+    for table in response:
+        for record in table.records:
+            records.append(record)
+            if record.values["id"] not in sensor_ids:
+                sensor_ids.append(record.values["id"])
+                
+    data = []
+    for id in sensor_ids:
+        sensor = {}
+        for record in records:
+            sensor.update({"id": id})
+            if id == record.values["id"] and record.get_field() in ["lon", "lat"]:
+                sensor.update({record.get_field(): record.get_value()})
+        data.append(sensor)
+    return data
+
+
+def main():
+    load_dotenv()
+    config = Configuration(user=os.getenv("USERNAME_WEKEO"), password=os.getenv("PASSWORD"))
+    hda_client = Client(config=config)
+    write_client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
+                            org=ORG, database=BUCKET, enable_gzip=True)
+    
+    read_client = InfluxDBClient(url=URL_INFLUDB, token=TOKEN, org=ORG)
+    read_api = read_client.query_api()
+    
+    influxdb_query = """
+            from(bucket: "BE-OpenAQ-sensors")
+            |> range(start: 0)
+            |> filter(fn: (r) => r["_measurement"] == "sensor")
+            """
+    
+    response = read_api.query(influxdb_query, org=ORG)
+    sensor_locations = get_locations(response)
+
+    start_date = (pd.Timestamp(NOW, tz='UCT') - pd.DateOffset(1)).strftime('%Y-%m-%d')
+    end_date = pd.Timestamp(NOW, tz='UCT').strftime('%Y-%m-%d')
+    
+    for i, sensor in enumerate(sensor_locations):
+        print(f"searching lat: {sensor['lat']}, lon: {sensor['lon']}")
+        query = query_settings(sensor['lat'], sensor['lon'], start_date, end_date)
+        matches = hda_client.search(query)
+        print("downloading data")
+        matches.download(DATA_DIR)
+    
+        nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+        data_file = nc.Dataset(f"{DATA_DIR}/{nc_files[i]}")
+
+        data = {}
+        for key in data_file.variables.keys():
+            if key != "level":
+                d = data_file.variables[key][:]
+                normal_array = np.where(d.mask, None, d)
+                result = [float(x) for x in normal_array.flatten() if x is not None]
+            
+                data.update({key: result})
+
+        wekeo = []
+        for i in range(len(data['time'])):
+            hour = str(int(data['time'][i]) - (24 * (int(data['time'][i]) // 24)))
+            if len(hour) == 1:
+                hour = f"0{hour}"
+            
+            date = (pd.Timestamp(start_date) + pd.DateOffset((int(data['time'][i]) // 24))).strftime('%Y-%m-%d')
+
+            data_dict = {
+                'id': sensor['id'],
+                'lon': data['longitude'][0],
+                'lat': data['latitude'][0],
+                'time': pd.Timestamp(f"{date}T{hour}:00:00.000Z")
+            }
+            
+            for key in data_file.variables.keys():
+                if key not in ['longitude', 'latitude', 'time', 'level']:
+                    data_dict.update({key: data[key][i]})    
+            wekeo.append(data_dict)
+            
+        print("sending data to database")
+        wekeo_df = pd.DataFrame(wekeo).set_index('time')
+        
+        try:
+            write_client.write(wekeo_df, data_frame_measurement_name='sensor', data_frame_tag_columns=['id'])
+        except Exception as e:
+            print(f"Error bij point: {e}")
+
+
+if __name__ == "__main__":
+    main()

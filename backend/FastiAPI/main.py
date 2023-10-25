@@ -6,4 +6,4 @@ app = Fastapi()
 
 
 if __file__ == "__main__":
-    uvicorn.run(app, "0.0.0.0")
+    uvicorn.run(app, "0.0.0.0", reload=True)
