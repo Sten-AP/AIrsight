@@ -1,163 +1,85 @@
 import pandas as pd
-from zipfile import ZipFile
 import os
-import json
 import netCDF4 as nc
 from dotenv import load_dotenv
 from hda import Client, Configuration
-from shutil import rmtree
+from influxdb_client_3 import InfluxDBClient3
+import pandas as pd
+import time
+import netCDF4 as nc
+import os
+import numpy as np
+from query import query_settings
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
 NOW = pd.Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 
-##Setup
-load_dotenv()
-user_name= os.getenv("USERNAME_WEKEO")
-password= os.getenv("PASSWORD")
-config = Configuration(user=user_name, password=password) #username/password van je wekeo account meegeven
-hda_client = Client(config=config)
+URL_INFLUDB = "http://localhost:8086"
+ORG = "AP"
+TOKEN = "I1SYSyvrMEmwP88EPLjxxxeQrk14TdIqid8Y4XmeEmqTveJczU5r9nb4x9l37JtXP0xt64-h5oZrplJN01jPMw=="
+BUCKET = "WEkEO"
 
-print("============data download=============")
-print(hda_client)
-
-##The api call to wekeo (returns a zip file)
-lat = 51.281014
-lon = 4.329848
-box = 0.05
-
-bbox = [
-    lon-box,
-    lat-box,
-    lon+box,
-    lat+box
-]
-
-query = {
-  "datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
-  "boundingBoxValues": [
-    {
-      "name": "area",
-      "bbox": bbox
-    }
-  ],
-  "dateRangeSelectValues": [
-    {
-      "name": "date",
-      "start": "2023-10-22T00:00:00.000Z",
-      "end": "2023-10-23T00:00:00.000Z"
-    }
-  ],
-  "multiStringSelectValues": [
-    {
-      "name": "model",
-      "value": [
-        "ensemble"
-      ]
-    },
-    {
-      "name": "variable",
-      "value": [
-        "carbon_monoxide",
-        "particulate_matter_10um",
-        "particulate_matter_2.5um",
-        "sulphur_dioxide",
-        "ozone",
-        "nitrogen_dioxide"
-      ]
-    },
-    {
-      "name": "type",
-      "value": [
-        "forecast"
-      ]
-    },
-    {
-      "name": "level",
-      "value": [
-        "0"
-      ]
-    },
-    {
-      "name": "leadtime_hour",
-      "value": [
-        "0",
-        "6",
-        "12",
-        "18",
-        "24",
-      ]
-    },
-    {
-      "name": "time",
-      "value": [
-        "00:00"
-      ]
-    }
-  ],
-  "stringChoiceValues": [
-    {
-      "name": "format",
-      "value": "netcdf"
-    }
-  ]
-}
-
-
-matches= hda_client.search(query)
-matches.download(DATA_DIR)
-
-
-##Unzip the file
-print("============zipfiles=============")
-zip_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.zip')]
-print(zip_files)
-
-for zip_file in zip_files:
-    with ZipFile(os.path.join(DATA_DIR, zip_file), 'r') as zip_ref:
-        zip_ref.extractall(DATA_DIR)
-        
-for zip_file in zip_files:
-    os.remove(os.path.join(DATA_DIR, zip_file))
+def main():
+    load_dotenv()
+    config = Configuration(user=os.getenv("USERNAME_WEKEO"), password=os.getenv("PASSWORD")) #username/password van je wekeo account meegeven
+    hda_client = Client(config=config)
+    client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN,
+                            org=ORG, database=BUCKET, enable_gzip=True)
+     
+     
+    lat = 51.281014
+    lon = 4.329848
+      
+    start_date = (pd.Timestamp(NOW) - pd.DateOffset(2)).strftime('%Y-%m-%d')
+    end_date = pd.Timestamp(NOW).strftime('%Y-%m-%d')
     
-##Read the data
-print("============ncfiles=============")
-nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+    query = query_settings(lat, lon, start_date, end_date)
+    
+    print("============searching data=============")
+    matches = hda_client.search(query)
+    print("============data download=============")
+    matches.download(DATA_DIR)
+    
+    nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+    data_file = nc.Dataset(f"{DATA_DIR}/{nc_files[0]}")
 
-def read_nc_variabels (DATA_DIR, variable_names, path_number):
-        path =  DATA_DIR + "/" + nc_files[path_number]
-        file = nc.Dataset(path)
-        variables_data = {}
-        time_steps = file.variables['time'][:]
-        print(file)
+    data = {}
+    for key in data_file.variables.keys():
+        if key != "level":
+          d = data_file.variables[key][:]
+          normal_array = np.where(d.mask, None, d)
+          result = [float(x) for x in normal_array.flatten() if x is not None]
+          
+          data.update({key: result})
 
-        for var_name in variable_names:
-            if var_name in file.variables:
-                variables_data[var_name] = file.variables[var_name][:]
+    wekeo = []
+    for i in range(len(data['time'])):
+        hour = str(int(data['time'][i]) - (24 * (int(data['time'][i]) // 24)))
+        if len(hour) == 1:
+            hour = f"0{hour}"
         
-        for i, time_step in enumerate(time_steps):
-            pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
-            pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
-            no2_concentration = variables_data['no2_conc'][i, 0, 0, 0]
-            o3_concentration = variables_data['o3_conc'][i, 0, 0, 0]
-            so2_concentration = variables_data['so2_conc'][i, 0, 0, 0]
-            co_concentration = variables_data['co_conc'][i, 0, 0, 0]
-            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}, no2 Concentration = {no2_concentration}, o3 Concentration = {o3_concentration}, so2 Concentration = {so2_concentration}, co Concentration = {co_concentration}')
+        date = (pd.Timestamp(start_date) + pd.DateOffset((int(data['time'][i]) // 24))).strftime('%Y-%m-%d')
 
-        file.close()
+        data_dict = {
+            'lon': data['longitude'][0],
+            'lat': data['latitude'][0],
+            'time': pd.Timestamp(f"{date}T{hour}:00:00.000Z")
+        }
+        
+        for key in data_file.variables.keys():
+            if key not in ['longitude', 'latitude', 'time', 'level']:
+                data_dict.update({key: data[key][i]})    
+        wekeo.append(data_dict)
+        
+    print("============data to database=============")
+    wekeo_df = pd.DataFrame(wekeo).set_index('time')
 
-
-variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc"]
-variables_data = {}
-
-read_nc_variabels(DATA_DIR, variable_names, -1)
-
-
-##Delete the data files
-if os.path.exists(DATA_DIR):
     try:
-        rmtree(DATA_DIR)  
-    except OSError as e:
-        print(f"Error: {e}")
-else:
-    print(f"Folder '{DATA_DIR}' does not exist.")
+        client.write(wekeo_df, data_frame_measurement_name='satellite')
+    except Exception as e:
+        print(f"Error bij point: {e}")
+    time.sleep(2)
+
+if __name__ == "__main__":
+    main()
