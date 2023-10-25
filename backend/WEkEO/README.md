@@ -13,3 +13,15 @@ The lead time is the time gap between when the model generates a forecast and th
 + Analysis Data is historical data that provides a consistent record of past atmospheric conditions and is used for long-term studies, trend analysis, and understanding climate patterns.
 
 + Forecast Data is model-generated data that provides predictions of future atmospheric conditions and is used for short-term and medium-term planning, weather forecasting, and making real-time decisions.
+
+## Interesting values for model training
+
++ PM10 (Particulate matter => 10µm)
++ PM2P5 (Particulate matter => 2.5µm)
++ O₃ (Ozone)
++ CO (Carbon monoxide) 
++ NO₂ (Nitrogen dioxide)
++ so2 (sulpher dioxide)
+
+## Interesting openAQ sensor(s) to use as result data
++ BETR801

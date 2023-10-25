@@ -49,7 +49,6 @@ for data in response.json()['results']:
 
 sensors_df = pd.DataFrame(sensors).set_index('time')
 print(sensors_df)
-
 try:
     client.write(sensors_df, data_frame_measurement_name='sensor',
                  data_frame_tag_columns=['name', 'id'])
