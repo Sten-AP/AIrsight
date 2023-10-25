@@ -14,7 +14,7 @@ HEADERS = {"accept": "application/json"}
 
 NOW = pd.Timestamp.now(tz='UCT').floor('ms')
 BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = BASE_DIR+"./data"
+DATA_DIR = BASE_DIR+"/data"
 
 response = requests.get(url=URL_OPENAQ, headers=HEADERS)
 client = InfluxDBClient3(host=URL_INFLUDB, token=TOKEN, org=ORG, database=BUCKET, enable_gzip=True)
@@ -36,6 +36,7 @@ for data in response.json()['results']:
         if parameter['id'] == 2:
             if parameter['lastValue'] != -999:
                 pm25 = parameter["lastValue"]
+                
 
     sensors.append({
         'name': data['name'],
