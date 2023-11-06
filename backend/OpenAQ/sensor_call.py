@@ -25,11 +25,12 @@ sensors = []
 for data in response.json()['results']:
     pm10, pm25, no2 = -1, -1, -1
     local_date = data['date']['local']
-    if data['parameter'] == 'pm10':
+    parameter = data['parameter']
+    if parameter == 'pm10':
         pm10 = data['value']
-    elif data['parameter'] == 'pm25':
+    elif parameter == 'pm25':
         pm25 = data['value']
-    elif data['parameter'] == 'no2':
+    elif parameter == 'no2':
         no2 = data['value']
 
     sensors.append({
@@ -39,6 +40,6 @@ for data in response.json()['results']:
         'local_date': local_date
     })
 
-sensors_df = pd.DataFrame(sensors).set_index('local_date')
-print(sensors_df)
+openaq_dataset= pd.DataFrame(sensors)
+print(openaq_dataset)
 
