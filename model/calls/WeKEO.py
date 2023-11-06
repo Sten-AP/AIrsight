@@ -8,7 +8,8 @@ from hda import Client, Configuration
 from shutil import rmtree
 
 BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = BASE_DIR+"/datasets"
+DATA_DIR = BASE_DIR+"/wekeodata"
+DATASET_DIR = BASE_DIR + "/datasets"
 NOW = pd.Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 print(DATA_DIR)
 NOW = pd.Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
@@ -45,8 +46,8 @@ query = {
   "dateRangeSelectValues": [
     {
       "name": "date",
-      "start": "2023-10-22T00:00:00.000Z",
-      "end": "2023-10-23T00:00:00.000Z"
+      "start": "2023-10-01T00:00:00.000Z",
+      "end": "2023-10-14T00:00:00.000Z"
     }
   ],
   "multiStringSelectValues": [
@@ -122,29 +123,42 @@ for zip_file in zip_files:
 
 nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
 
-def read_nc_variabels (DATA_DIR, variable_names, path_number):
-        path =  DATA_DIR + "/" + nc_files[path_number]
-        file = nc.Dataset(path)
-        variables_data = {}
+def read_nc_variables(DATA_DIR, variable_names):
+    nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+    data_list = []  
+    counter = 0
+    for nc_file in nc_files:
+        file = nc.Dataset(os.path.join(DATA_DIR, nc_file))
         time_steps = file.variables['time'][:]
 
-
-        print(file)
-
-        for var_name in variable_names:
-            if var_name in file.variables:
-                variables_data[var_name] = file.variables[var_name][:]
-        
         for i, time_step in enumerate(time_steps):
-            pm10_concentration = variables_data['pm10_conc'][i, 0, 0, 0]
-            pm2p5_concentration = variables_data['pm2p5_conc'][i, 0, 0, 0] 
-            print(f'Time Step {i}: Time = {time_step}, PM10 Concentration = {pm10_concentration}, PM2.5 Concentration = {pm2p5_concentration}')
+            data_row = {'Time': time_step}
+            for var_name in variable_names:
+                if var_name in file.variables:
+                    data_row[var_name] = file.variables[var_name][i, 0, 0, 0]
+            data_list.append(data_row)
+    
 
         file.close()
+        counter += 1
+    print(counter)
+    data_df = pd.DataFrame(data_list)
+    data_df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)
+
+##left out variables ""o3_conc", "so2_conc", "co_conc"
+variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc"]
 
 
-variable_names = ["pm10_conc", "pm2p5_conc"]
-variables_data = {}
+read_nc_variables(DATA_DIR, variable_names)
 
-read_nc_variabels(DATA_DIR, variable_names, -1)
 
+satellite_df = pd.DataFrame()
+
+
+if os.path.exists(DATA_DIR):
+    try:
+        rmtree(DATA_DIR)  
+    except OSError as e:
+        print(f"Error: {e}")
+else:
+    print(f"Folder '{DATA_DIR}' does not exist.")
