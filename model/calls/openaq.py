@@ -31,17 +31,17 @@ for data in response.json()['results']:
         pm25 = data['value']
     elif data['parameter'] == 'no2':
         no2 = data['value']
-
-    if local_date in sensors_dict:
-        sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
-        sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
-        sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
-    else:
-        sensors_dict[local_date] = {
-            'pm10': pm10,
-            'pm25': pm25,
-            'no2': no2
-        }
+    if datetime.fromisoformat(local_date).hour == 8 or datetime.fromisoformat(local_date).hour == 16 or datetime.fromisoformat(local_date).hour == 12:
+        if local_date in sensors_dict:
+            sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
+            sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
+            sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
+        else:
+            sensors_dict[local_date] = {
+                'pm10': pm10,
+                'pm25': pm25,
+                'no2': no2
+            }
             
 for local_date, values in sensors_dict.items():
     sensors_list.append({
