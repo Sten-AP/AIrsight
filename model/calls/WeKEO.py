@@ -126,7 +126,6 @@ nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
 def read_nc_variables(DATA_DIR, variable_names):
     nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
     data_list = []  
-    counter = 0
     for nc_file in nc_files:
         file = nc.Dataset(os.path.join(DATA_DIR, nc_file))
         time_steps = file.variables['time'][:]
@@ -140,20 +139,17 @@ def read_nc_variables(DATA_DIR, variable_names):
     
 
         file.close()
-        counter += 1
-    print(counter)
-    data_df = pd.DataFrame(data_list)
-    data_df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)
+    return pd.DataFrame(data_list)
+    
 
 ##left out variables ""o3_conc", "so2_conc", "co_conc"
 variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc"]
 
+satellite_df = read_nc_variables(DATA_DIR, variable_names)
+satellite_df = satellite_df.rename(columns={"Time": "time", "pm10_conc": "pm10", "pm2p5_conc": "pm25", "no2_conc": "no2"})
+satellite_df = satellite_df.round({"time": 5})
 
-read_nc_variables(DATA_DIR, variable_names)
-
-
-satellite_df = pd.DataFrame()
-
+satellite_df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)
 
 if os.path.exists(DATA_DIR):
     try:

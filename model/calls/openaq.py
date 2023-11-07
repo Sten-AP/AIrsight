@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import time
 import os
+from datetime import datetime
 
 
 URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-14T08%3A00%3A00-16%3A00&page=1&offset=0&limit=1000&sort=desc&radius=1000&country=BE&location_id=4878&order_by=datetime"
@@ -44,7 +45,7 @@ for data in response.json()['results']:
             
 for local_date, values in sensors_dict.items():
     sensors_list.append({
-        'time': local_date,
+        'time': datetime.fromisoformat(local_date).hour,
         'pm10': values['pm10'],
         'pm25': values['pm25'],
         'no2': values['no2']
