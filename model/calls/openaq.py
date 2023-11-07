@@ -18,11 +18,12 @@ response = requests.get(url=URL_OPENAQ, headers=HEADERS)
 if not os.path.exists(DATA_DIR):
     os.mkdir(DATA_DIR)
 
-
-sensors = []
+sensors_dict = {}  
+sensors_list = []
 for data in response.json()['results']:
     pm10, pm25, no2 = -1, -1, -1
     local_date = data['date']['local']
+
     if data['parameter'] == 'pm10':
         pm10 = data['value']
     elif data['parameter'] == 'pm25':
@@ -30,14 +31,27 @@ for data in response.json()['results']:
     elif data['parameter'] == 'no2':
         no2 = data['value']
 
-    sensors.append({
-        'pm10': pm10,
-        'pm25': pm25,
-        'no2': no2,
-        'local_date': local_date
+    if local_date in sensors_dict:
+        sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
+        sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
+        sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
+    else:
+        sensors_dict[local_date] = {
+            'pm10': pm10,
+            'pm25': pm25,
+            'no2': no2
+        }
+            
+for local_date, values in sensors_dict.items():
+    sensors_list.append({
+        'time': local_date,
+        'pm10': values['pm10'],
+        'pm25': values['pm25'],
+        'no2': values['no2']
     })
 
-sensors_df = pd.DataFrame(sensors).set_index('local_date')
+
+sensors_df = pd.DataFrame(sensors_list).set_index('time')
 sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv')
 print(sensors_df)
 
