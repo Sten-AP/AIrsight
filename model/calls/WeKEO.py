@@ -71,7 +71,36 @@ query = {
     {
       "name": "type",
       "value": [
-        "forecast"
+        "analysis"
+      ]
+    },
+    {
+      "name": "time",
+      "value": [
+        "00:00",
+        "01:00",
+        "02:00",
+        "03:00",
+        "04:00",
+        "05:00",
+        "06:00",
+        "07:00",
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+        "18:00",
+        "19:00",
+        "20:00",
+        "21:00",
+        "22:00",
+        "23:00"
       ]
     },
     {
@@ -83,17 +112,7 @@ query = {
     {
       "name": "leadtime_hour",
       "value": [
-        "0",
-        "6",
-        "12",
-        "18",
-        "24",
-      ]
-    },
-    {
-      "name": "time",
-      "value": [
-        "00:00"
+        "0"
       ]
     }
   ],
@@ -147,8 +166,9 @@ variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc"]
 
 satellite_df = read_nc_variables(DATA_DIR, variable_names)
 satellite_df = satellite_df.rename(columns={"Time": "time", "pm10_conc": "pm10", "pm2p5_conc": "pm25", "no2_conc": "no2"})
-satellite_df = satellite_df.round({"time": 5})
-
+#satellite_df[["pm10", "pm25", "no2"]] = satellite_df[["pm10", "pm25", "no2"]].apply(lambda x: round(x, 2))
+satellite_df["time"] = satellite_df["time"] % 24
+satellite_df["time"] = satellite_df["time"].astype(int)
 satellite_df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)
 
 if os.path.exists(DATA_DIR):
