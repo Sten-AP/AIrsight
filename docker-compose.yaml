@@ -1,0 +1,84 @@
+version: '3.0'
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce
+    restart: always
+    stdin_open: true
+    tty: true
+    networks:
+      - frontnet
+      - backnet
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/portainer:/data
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    networks:
+      - frontnet
+      - backnet
+    ports:
+      - "80:80"
+    restart: always
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - backnet
+    ports:
+      - "8086:8086"
+    volumes:
+      - $DOCKERDIR/appdata/influxdb2/config:/etc/influxdb2
+      - $DOCKERDIR/appdata/influxdb2/db:/var/lib/influxdb2
+    environment:
+      - INFLUXDB_HTTP_LOG_ENABLED=true
+
+  # fastAPI:
+  #   container_name: fastAPI
+  #   restart: always
+  #   image: fast_api:latest
+  #   networks:
+  #     network:
+  #       ipv4_address: 10.5.0.4
+  #   ports:
+  #     - "6000:5000"
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:latest
+    restart: always
+    networks:
+      - frontnet
+      - backnet
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
+
+  frontend:
+    container_name: frontend
+    image: airsight/frontend
+    build: ./frontend
+    restart: always
+    networks:
+      - frontnet
+    ports:
+      - "3002:5000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    tty: true
+
+networks:
+  frontnet:
+    name: frontnet
+  backnet:
+    name: backnet
