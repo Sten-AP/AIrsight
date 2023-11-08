@@ -53,7 +53,6 @@ for local_date, values in sensors_dict.items():
 
 
 sensors_df = pd.DataFrame(sensors_list).set_index('time')
-sorted_df = sensors_df.sort_values(by='time', key=lambda x: x.map({8: 0, 12: 1, 16: 2}))
-sorted_df.to_csv(DATA_DIR+'/openAQ_data.csv')
+sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv')
 print(sensors_df)
 
