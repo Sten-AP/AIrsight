@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 
-URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-14T08%3A00%3A00-16%3A00&page=1&offset=0&limit=1000&sort=desc&radius=1000&country=BE&location_id=4878&order_by=datetime"
+URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-31T08%3A00%3A00-16%3A00&page=1&offset=0&limit=100000&sort=desc&radius=1000&country=BE&location_id=4878&order_by=datetime"
 
 HEADERS = {"accept": "application/json"}
 
@@ -45,6 +45,7 @@ for data in response.json()['results']:
             
 for local_date, values in sensors_dict.items():
     sensors_list.append({
+        'local_date': local_date,
         'time': datetime.fromisoformat(local_date).hour,
         'pm10': values['pm10'],
         'pm25': values['pm25'],
@@ -53,6 +54,7 @@ for local_date, values in sensors_dict.items():
 
 
 sensors_df = pd.DataFrame(sensors_list).set_index('time')
+sensors_df = sensors_df.sort_values(by='local_date')
 sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv')
 print(sensors_df)
 

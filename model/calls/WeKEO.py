@@ -24,8 +24,8 @@ hda_client = Client(config=config)
 
 
 ##The api call to wekeo (returns a zip file)
-lat = 51.3
-lon = 4.42
+lat = 51.228629813460294
+lon = 4.42845417753557
 box = 0.05
 
 bbox = [
@@ -46,8 +46,8 @@ query = {
   "dateRangeSelectValues": [
     {
       "name": "date",
-      "start": "2023-10-01T00:00:00.000Z",
-      "end": "2023-10-14T00:00:00.000Z"
+      "start": "2023-10-02T00:00:00.000Z",
+      "end": "2023-10-31T00:00:00.000Z"
     }
   ],
   "multiStringSelectValues": [
