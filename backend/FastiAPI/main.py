@@ -57,9 +57,9 @@ async def make_new_sensor(sensoren: Sensoren):
     try:
         write_client.write(data_df, data_frame_measurement_name='sensor',
                     data_frame_tag_columns=['name', 'id'])
-        return {"message": f"sensoren zijn succesvol aangemaakt"}
+        return {"message": f"sensordata succesfully added to database"}
     except Exception as e:
-        return {"message": f"fout bij het aanmaken van sensoren: {e}"}
+        return {"message": f"error with adding data to database: {e}"}
 
 
 @app.get("/sensor/")
