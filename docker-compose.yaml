@@ -15,17 +15,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/portainer:/data
 
-  # nginx:
-  #   build: ./nginx
-  #   container_name: nginx
-  #   networks:
-  #     - frontnet
-  #     - backnet
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-
   influxdb:
     image: influxdb:latest
     container_name: influxdb
