@@ -15,16 +15,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/portainer:/data
 
-  nginx:
-    container_name: nginx
-    image: nginx
-    networks:
-      - frontnet
-      - backnet
-    ports:
-      - "80:80"
-    restart: always
-
   influxdb:
     image: influxdb:latest
     container_name: influxdb
@@ -32,6 +22,7 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
     networks:
+      - frontnet
       - backnet
     ports:
       - "8086:8086"
@@ -59,22 +50,19 @@ services:
       - frontnet
       - backnet
     ports:
-      - "3000:3000"
+      - "3002:3002"
     volumes:
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
 
   frontend:
     container_name: frontend
-    image: ./frontend
     build: ./frontend
     restart: always
     networks:
+      - backnet
       - frontnet
     ports:
-      - "3002:5000"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "80:3000"
     tty: true
 
 networks:
