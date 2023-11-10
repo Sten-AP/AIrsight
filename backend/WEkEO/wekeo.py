@@ -6,7 +6,6 @@ from hda import Client, Configuration
 from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
 import pandas as pd
-import netCDF4 as nc
 import os
 import numpy as np
 from query import query_settings
