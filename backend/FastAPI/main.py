@@ -12,7 +12,7 @@ load_dotenv()
 
 # -----------Constants-----------
 ORG = "AP"
-BUCKET = "BE-OpenAQ-sensors"
+BUCKET = "openaqsensors"
 BASE_QUERY = f"""from(bucket: "{BUCKET}") 
                 |> range(start: 0)
                 |> filter(fn: (r) => r["_measurement"] == "sensor")"""
@@ -90,4 +90,4 @@ async def list_of_sensors():
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, reload=True)
+    run("main:app", host="0.0.0.0", port=6000, reload=True)
