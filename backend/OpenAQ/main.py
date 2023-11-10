@@ -2,6 +2,7 @@ from pandas import Timestamp, DataFrame
 from dotenv import load_dotenv
 import requests
 import os
+import schedule
 
 load_dotenv()
 
@@ -29,4 +30,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    schedule.every(10).seconds.do(main)
+    while True:
+        schedule.run_pending()
