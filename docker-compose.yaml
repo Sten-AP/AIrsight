@@ -32,15 +32,20 @@ services:
     environment:
       - INFLUXDB_HTTP_LOG_ENABLED=true
 
-  # fastAPI:
-  #   container_name: fastAPI
-  #   restart: always
-  #   image: fast_api:latest
-  #   networks:
-  #     network:
-  #       ipv4_address: 10.5.0.4
-  #   ports:
-  #     - "6000:5000"
+  fastapi:
+    container_name: fastapi
+    restart: always
+    build: ./backend/FastAPI
+    networks:
+      - backnet
+    ports:
+      - "3000:6000"
+
+  openaq:
+    container_name: openaq
+    build: ./backend/OpenAQ
+    networks:
+      - backnet
 
   grafana:
     container_name: grafana

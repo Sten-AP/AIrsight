@@ -1,22 +1,18 @@
 # start by pulling the python image
-FROM python:3.9.2
+FROM python:3.10.12
 
-WORKDIR /home/airsight/application/backend/OpenAQ/
+WORKDIR /OpenAQ/
 
 # copy the requirements file into the image
-COPY ./requirements.txt /home/airsight/application/backend/OpenAQ/requirements.txt
+COPY ./requirements.txt /OpenAQ/requirements.txt
 
 # install the dependencies and packages in the requirements file
-RUN pip install -r /home/airsight/application/backend/OpenAQ/requirements.txt
+RUN pip install -r /OpenAQ/requirements.txt
 
 # copy every content from the local file to the image
-COPY . /home/airsight/application/backend/OpenAQ/
-
-
-# Crontab
-COPY root /var/spool/cron/crontabs/root 
-CMD cron -l 2 -f
+COPY . /OpenAQ/
 
 # configure the container to run in an executed manner
-#ENTRYPOINT [ "python3" ]
-#CMD ["main.py" ]
+ENTRYPOINT [ "python3" ]
+
+CMD ["main.py" ]
