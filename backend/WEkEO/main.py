@@ -33,7 +33,7 @@ def main():
     hda_client = Client(config=config)
     
     try:
-        response = requests.get(API_URL+"/sensor/").json()
+        response = requests.get(API_URL+"/openaqsensor/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
