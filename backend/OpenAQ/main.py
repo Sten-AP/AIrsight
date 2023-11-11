@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import requests
 import os
 import schedule
+import time
 
 load_dotenv()
 
@@ -33,3 +34,4 @@ if __name__ == "__main__":
     schedule.every().hour.do(main)
     while True:
         schedule.run_pending()
+        time.sleep(600)
