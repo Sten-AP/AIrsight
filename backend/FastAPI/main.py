@@ -15,8 +15,7 @@ ORG = "AP"
 BUCKET = "airsight"
 BASE_QUERY = f"""from(bucket: "{BUCKET}") 
                 |> range(start: 0)
-                |> filter(fn: (r) => r["_measurement"] == "sensor")"""
-
+              """
 
 # -----------InfluxDB-settings-----------
 read_client = InfluxDBClient(url=os.getenv("INFLUXDB_URL"), token=os.getenv("TOKEN"), org=ORG)
@@ -50,11 +49,11 @@ def records(response):
 
 
 # -----------Routes-----------
-@app.post("/sensor/new/")
+@app.post("/openaqsensor/new/")
 async def make_new_sensor(sensoren: Sensoren):
     data_df = read_json(sensoren.data, orient="split").set_index('time')
     try:
-        write_client.write(data_df, data_frame_measurement_name='sensor',
+        write_client.write(data_df, data_frame_measurement_name='openaqsensor',
                     data_frame_tag_columns=['name', 'id'])
         return {"message": f"sensordata succesfully added to database"}
     except Exception as e:
@@ -71,10 +70,10 @@ async def make_new_sensor_from_wekeo(sensoren: Sensoren):
         return {"message": f"error with adding data to database: {e}"}
 
 
-@app.get("/sensor/")
+@app.get("/openaqsensor/")
 async def list_of_sensors():
     try:
-        response = read_api.query(BASE_QUERY, org=ORG)
+        response = read_api.query(BASE_QUERY+ """|> filter(fn: (r) => r["_measurement"] == "openaqsensor")""", org=ORG)
 
         records = []
         sensor_ids = []
@@ -97,6 +96,32 @@ async def list_of_sensors():
     except Exception as e:
         return {"error": str(e)}
 
+
+@app.get("/wekeosensor/")
+async def list_of_wekeo_sensors():
+    try:
+        response = read_api.query(BASE_QUERY+"""|> filter(fn: (r) => r["_measurement"] == "wekeosensor")""", org=ORG)
+
+        records = []
+        sensor_ids = []
+        for table in response:
+            for record in table.records:
+                records.append(record)
+                if record.values["id"] not in sensor_ids:
+                    sensor_ids.append(record.values["id"])
+
+        data = []
+        for id in sensor_ids:
+            sensor = {}
+            for record in records:
+                sensor.update({"id": id})
+                if id == record.values["id"]:
+                    sensor.update({record.get_field(): record.get_value()})
+            data.append(sensor)
+
+        return data
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     run("main:app", host="0.0.0.0", port=6000, reload=True)
