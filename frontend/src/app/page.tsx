@@ -40,6 +40,8 @@ export default function Page() {
             <div className="mt-6">
               <Card>
                 <div className="h-80" />
+                  <iframe src="http://airsight.westeurope.cloudapp.azure.com:3002/d-solo/bfccfc6b-761e-4c71-a9ff-e79912e7e7e3/airsight?orgId=2&theme=light&panelId=4" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
               </Card>
             </div>
           </TabPanel>
