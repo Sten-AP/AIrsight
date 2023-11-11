@@ -27,7 +27,7 @@ def main():
             sensoren.append(sensor)
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
-        print(requests.post(os.getenv("API_URL") + f"/sensor/new/", json={"data": sensoren_json}).json())
+        print(requests.post(os.getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
         time.sleep(1800)
 
 
