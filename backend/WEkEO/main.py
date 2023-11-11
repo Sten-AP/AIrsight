@@ -17,7 +17,6 @@ API_URL = "http://airsight.westeurope.cloudapp.azure.com:3000"
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
 NOW = Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
-BUCKET = "openaqsensors"
 
 if os.path.exists(DATA_DIR):
     shutil.rmtree(DATA_DIR)
