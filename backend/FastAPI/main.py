@@ -53,11 +53,20 @@ def records(response):
 @app.post("/sensor/new/")
 async def make_new_sensor(sensoren: Sensoren):
     data_df = read_json(sensoren.data, orient="split").set_index('time')
-    print(data_df)
     try:
         write_client.write(data_df, data_frame_measurement_name='sensor',
                     data_frame_tag_columns=['name', 'id'])
         return {"message": f"sensordata succesfully added to database"}
+    except Exception as e:
+        return {"message": f"error with adding data to database: {e}"}
+
+@app.post("/wekeosensor/new/")
+async def make_new_sensor_from_wekeo(sensoren: Sensoren):
+    data_df = read_json(sensoren.data, orient="split").set_index('time')
+    try:
+        write_client.write(data_df, data_frame_measurement_name='wekeosensor',
+                    data_frame_tag_columns=['id'])
+        return {"message": f"sensordata from wekeo succesfully added to database"}
     except Exception as e:
         return {"message": f"error with adding data to database: {e}"}
 

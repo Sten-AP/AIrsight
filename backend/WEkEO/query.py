@@ -1,19 +1,12 @@
 
 def query_settings(lat, lon, start_date, end_date):
 	box = 0.05
-	bbox = [
-		lon-box,
-		lat-box,
-		lon+box,
-		lat+box
-	]
- 
 	query =  {
 		"datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
 		"boundingBoxValues": [
 			{
 			"name": "area",
-			"bbox": bbox
+			"bbox": [lon-box, lat-box, lon+box, lat+box]
 			}
 		],
 		"dateRangeSelectValues": [
