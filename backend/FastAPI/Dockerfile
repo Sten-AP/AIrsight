@@ -1,5 +1,5 @@
 # start by pulling the python image
-FROM python:3.10.12
+FROM python:3.12.0-bullseye
 
 WORKDIR /FastAPI/
 
