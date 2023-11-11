@@ -12,7 +12,7 @@ load_dotenv()
 
 # -----------Constants-----------
 ORG = "AP"
-BUCKET = "openaqsensors"
+BUCKET = "airsight"
 BASE_QUERY = f"""from(bucket: "{BUCKET}") 
                 |> range(start: 0)
                 |> filter(fn: (r) => r["_measurement"] == "sensor")"""

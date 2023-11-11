@@ -84,8 +84,8 @@ def main():
             wekeo.append(data_dict)
             
         print("sending data to database")
-        wekeo_json = DataFrame(wekeo).set_index('time').to_json(orient="split")        
-        print(requests.post(API_URL + f"/wekeosensor/new/", json={"data": wekeo_json}).json())
+        wekeo_json = DataFrame(wekeo).to_json(orient="split")        
+        print(requests.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
 
 
 if __name__ == "__main__":
