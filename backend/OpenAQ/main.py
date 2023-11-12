@@ -1,6 +1,6 @@
 from pandas import Timestamp, DataFrame
 from dotenv import load_dotenv
-from requests import Session
+from requests import Session, get
 import os
 import time
 
@@ -9,7 +9,7 @@ load_dotenv()
 def main():
     session = Session()
     while True:
-        response = session.get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
+        response = get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
         sensoren = []
         for result in response.json()['results']:
             sensor = {
