@@ -18,7 +18,7 @@ def main():
                 'name': result['name'],
                 'lat': result['coordinates']['latitude'],
                 'lon': result['coordinates']['longitude'],
-                'time': Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z")
+                'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z"))
             }
             
             for parameter in result["parameters"]:

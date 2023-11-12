@@ -76,7 +76,7 @@ def main():
                 'id': sensor['id'],
                 'lon': data['longitude'][0],
                 'lat': data['latitude'][0],
-                'time': Timestamp(f"{date}T{hour}:00:00.000Z")
+                'time': str(Timestamp(f"{date}T{hour}:00:00.000Z"))
             }
             
             for key in data_file.variables.keys():
