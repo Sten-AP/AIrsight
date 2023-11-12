@@ -8,7 +8,7 @@ import numpy as np
 from query import query_settings
 import shutil
 from dotenv import load_dotenv
-from requests import Session
+from requests import Session, get
 
 load_dotenv()
 
@@ -35,12 +35,12 @@ def main():
     session = Session()
     
     try:
-        response = session.get(API_URL+"/openaqsensor/").json()
+        response = get(API_URL+"/openaqsensor/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
     sensor_locations = get_sensor_locations(response)
-    
+
     start_date = (Timestamp(NOW, tz='UCT') - DateOffset(1)).strftime('%Y-%m-%d')
     end_date = Timestamp(NOW, tz='UCT').strftime('%Y-%m-%d')
     
