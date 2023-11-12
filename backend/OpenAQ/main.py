@@ -11,13 +11,14 @@ def main():
     while True:
         response = get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
         sensoren = []
+        time = Timestamp.now(tz='UCT').floor('ms')
         for result in response.json()['results']:
             sensor = {
                 'id': result['id'],
                 'name': result['name'],
                 'lat': result['coordinates']['latitude'],
                 'lon': result['coordinates']['longitude'],
-                'time': str(Timestamp.now(tz='UCT').floor('ms'))
+                'time': Timestamp(f"{time.date()}T{time.hour}:00:00.000Z")
             }
             
             for parameter in result["parameters"]:
@@ -28,7 +29,7 @@ def main():
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
         print(session.post(os.getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
-        time.sleep(1800)
+        time.sleep(3600)
 
 
 if __name__ == "__main__":
