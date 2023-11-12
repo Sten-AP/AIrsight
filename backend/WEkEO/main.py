@@ -8,7 +8,7 @@ import numpy as np
 from query import query_settings
 import shutil
 from dotenv import load_dotenv
-import requests
+from requests import Session
 
 load_dotenv()
 
@@ -33,7 +33,7 @@ def main():
     hda_client = Client(config=config)
     
     try:
-        response = requests.get(API_URL+"/openaqsensor/").json()
+        response = Session.get(API_URL+"/openaqsensor/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
@@ -84,7 +84,7 @@ def main():
             
         print("sending data to database")
         wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-        print(requests.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
+        print(Session.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
 
 
 if __name__ == "__main__":
