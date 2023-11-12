@@ -7,8 +7,9 @@ import time
 load_dotenv()
 
 def main():
+    session = Session()
     while True:
-        response = Session.get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
+        response = session.get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
         sensoren = []
         for result in response.json()['results']:
             sensor = {
@@ -26,7 +27,7 @@ def main():
             sensoren.append(sensor)
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
-        print(Session.post(os.getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
+        print(session.post(os.getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
         time.sleep(1800)
 
 

@@ -18,6 +18,7 @@ BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = BASE_DIR+"./data"
 NOW = Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 
+
 if os.path.exists(DATA_DIR):
     shutil.rmtree(DATA_DIR)
 
@@ -31,9 +32,10 @@ def get_sensor_locations(response):
 def main():
     config = Configuration(user=os.getenv("USERNAME_WEKEO"), password=os.getenv("PASSWORD"))
     hda_client = Client(config=config)
+    session = Session()
     
     try:
-        response = Session.get(API_URL+"/openaqsensor/").json()
+        response = session.get(API_URL+"/openaqsensor/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
@@ -84,7 +86,7 @@ def main():
             
         print("sending data to database")
         wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-        print(Session.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
+        print(session.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
 
 
 if __name__ == "__main__":
