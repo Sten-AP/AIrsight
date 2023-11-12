@@ -11,14 +11,14 @@ def main():
     while True:
         response = get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
         sensoren = []
-        time = Timestamp.now(tz='UCT').floor('ms')
+        timestamp = Timestamp.now(tz='UCT').floor('ms')
         for result in response.json()['results']:
             sensor = {
                 'id': result['id'],
                 'name': result['name'],
                 'lat': result['coordinates']['latitude'],
                 'lon': result['coordinates']['longitude'],
-                'time': Timestamp(f"{time.date()}T{time.hour}:00:00.000Z")
+                'time': Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z")
             }
             
             for parameter in result["parameters"]:
