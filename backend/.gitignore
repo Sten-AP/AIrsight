@@ -262,6 +262,6 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,flask
 
-WEkEO/data/
-OpenAQ/data/
-data/*
+*/data/
+*/_venv/
+*/__pycache__/
