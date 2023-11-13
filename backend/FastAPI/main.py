@@ -6,7 +6,8 @@ from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
 from uvicorn import run
 from dotenv import load_dotenv
-import os
+from os import getenv
+from io import StringIO
 
 load_dotenv()
 
@@ -18,8 +19,8 @@ BASE_QUERY = f"""from(bucket: "{BUCKET}")
               """
 
 # -----------InfluxDB-settings-----------
-read_client = InfluxDBClient(url=os.getenv("INFLUXDB_URL"), token=os.getenv("TOKEN"), org=ORG)
-write_client = InfluxDBClient3(host=os.getenv("INFLUXDB_URL"), token=os.getenv("TOKEN"), org=ORG, database=BUCKET)
+read_client = InfluxDBClient(url=getenv("INFLUXDB_URL"), token=getenv("TOKEN"), org=ORG)
+write_client = InfluxDBClient3(host=getenv("INFLUXDB_URL"), token=getenv("TOKEN"), org=ORG, database=BUCKET)
 read_api = read_client.query_api()
 
 
@@ -27,7 +28,7 @@ read_api = read_client.query_api()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("REACT_URLS"),
+    allow_origins=getenv("REACT_URLS"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,17 +42,35 @@ class Sensoren(BaseModel):
 
 # -----------Functions-----------
 def records(response):
-    gegevens = {}
+    data = {}
     for table in response:
         for record in table.records:
-            gegevens.update({record.get_field(): record.get_value()})
-    return gegevens
+            data.update({record.get_field(): record.get_value()})
+    return data
 
+def list_items(response):
+    records = []
+    item_ids = []
+    for table in response:
+        for record in table.records:
+            records.append(record)
+            if record.values["id"] not in item_ids:
+                item_ids.append(record.values["id"])
+
+    data = []
+    for id in item_ids:
+        item = {}
+        for record in records:
+            item.update({"id": id})
+            if id == record.values["id"]:
+                item.update({record.get_field(): record.get_value()})
+        data.append(item)
+    return data
 
 # -----------Routes-----------
 @app.post("/openaqsensor/new/")
 async def make_new_sensor(sensoren: Sensoren):
-    data_df = read_json(sensoren.data, orient="split").set_index('time')
+    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
     try:
         write_client.write(data_df, data_frame_measurement_name='openaqsensor',
                     data_frame_tag_columns=['name', 'id'])
@@ -61,7 +80,7 @@ async def make_new_sensor(sensoren: Sensoren):
 
 @app.post("/wekeosensor/new/")
 async def make_new_sensor_from_wekeo(sensoren: Sensoren):
-    data_df = read_json(sensoren.data, orient="split").set_index('time')
+    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
     try:
         write_client.write(data_df, data_frame_measurement_name='wekeosensor',
                     data_frame_tag_columns=['id'])
@@ -71,28 +90,10 @@ async def make_new_sensor_from_wekeo(sensoren: Sensoren):
 
 
 @app.get("/openaqsensor/")
-async def list_of_sensors():
+async def list_of_openaq_sensors():
     try:
         response = read_api.query(BASE_QUERY+ """|> filter(fn: (r) => r["_measurement"] == "openaqsensor")""", org=ORG)
-
-        records = []
-        sensor_ids = []
-        for table in response:
-            for record in table.records:
-                records.append(record)
-                if record.values["id"] not in sensor_ids:
-                    sensor_ids.append(record.values["id"])
-
-        data = []
-        for id in sensor_ids:
-            sensor = {}
-            for record in records:
-                sensor.update({"id": id})
-                if id == record.values["id"]:
-                    sensor.update({record.get_field(): record.get_value()})
-            data.append(sensor)
-
-        return data
+        return list_items(response)
     except Exception as e:
         return {"error": str(e)}
 
@@ -101,25 +102,7 @@ async def list_of_sensors():
 async def list_of_wekeo_sensors():
     try:
         response = read_api.query(BASE_QUERY+"""|> filter(fn: (r) => r["_measurement"] == "wekeosensor")""", org=ORG)
-
-        records = []
-        sensor_ids = []
-        for table in response:
-            for record in table.records:
-                records.append(record)
-                if record.values["id"] not in sensor_ids:
-                    sensor_ids.append(record.values["id"])
-
-        data = []
-        for id in sensor_ids:
-            sensor = {}
-            for record in records:
-                sensor.update({"id": id})
-                if id == record.values["id"]:
-                    sensor.update({record.get_field(): record.get_value()})
-            data.append(sensor)
-
-        return data
+        return list_items(response)
     except Exception as e:
         return {"error": str(e)}
 

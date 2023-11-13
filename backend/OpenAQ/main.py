@@ -1,15 +1,15 @@
 from pandas import Timestamp, DataFrame
 from dotenv import load_dotenv
 from requests import Session, get
-import os
-import time
+from os import getenv
+from time import sleep
 
 load_dotenv()
 
 def main():
     session = Session()
     while True:
-        response = get(url=os.getenv("OPENAQ_URL"), headers={"accept": "application/json"})
+        response = get(url=getenv("OPENAQ_URL"), headers={"accept": "application/json"})
         sensoren = []
         timestamp = Timestamp.now(tz='UCT').floor('ms')
         for result in response.json()['results']:
@@ -28,8 +28,8 @@ def main():
             sensoren.append(sensor)
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
-        print(session.post(os.getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
-        time.sleep(3600)
+        print(session.post(getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
+        sleep(3600)
 
 
 if __name__ == "__main__":
