@@ -28,8 +28,11 @@ def main():
             sensoren.append(sensor)
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
-        print(session.post(getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
-        sleep(3600)
+        try:
+            print(session.post(getenv("API_URL") + f"/openaqsensor/new/", json={"data": sensoren_json}).json())
+        except Exception as e:
+            print(f"Error posting data: {e}")
+        sleep(1800)
 
 
 if __name__ == "__main__":
