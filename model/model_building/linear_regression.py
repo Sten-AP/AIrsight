@@ -55,3 +55,10 @@ plt.xlabel(f'actual {target_variable} values')
 plt.ylabel(f'predicted {target_variable} Values')
 plt.title('regression Line')
 plt.show()
+
+from sklearn2pmml import PMMLPipeline, sklearn2pmml
+# package iris classifier model with PMML
+sklearn2pmml(PMMLPipeline([("estimator",
+                        	model)]),
+         	"iris_model.pmml",
+         	with_repr=True)
