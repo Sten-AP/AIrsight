@@ -9,8 +9,8 @@ import joblib
 
 training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
 target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
-
-#training_data.drop("time", axis=1, inplace=True)
+merged_data = pd.merge(training_data, target_data, on='local_date', how='inner')
+merged_data.drop("local_date", axis=1, inplace=True)
 
 
 print("=======training data=======")
@@ -21,10 +21,14 @@ print("=======target data=======")
 print(target_data.head())
 print(target_data.columns)  
 
-target_variable = input("enter the target variable (pm25, pm10, no2): ")
+print("=======merged data=======")
+print(merged_data.head())
+print(merged_data.columns)  
 
-X =  training_data
-Y = target_data[target_variable]
+target_variable = input("enter the target variable (pm25_y, pm10_x, no2_x): ")
+
+X = merged_data.drop(target_variable, axis=1)
+Y = merged_data[target_variable]
 
 print("=======X=======")
 print(X)
@@ -42,7 +46,7 @@ print("=======predictions=======")
 print(predictions)
 print("=======Y_test=======")
 print(Y_test)
-
+#pearplot
 training_accuracy = model.score(X_train,Y_train)
 print("training_accuracy is: ",training_accuracy)
 print("test_accuracy is: ",model.score(X_test,Y_test))
