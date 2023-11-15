@@ -41,11 +41,13 @@ services:
     ports:
       - "3000:6000"
     environment:
-      - REACT_URLS
-      - INFLUXDB_URL
-      - TOKEN
-      - ORG
-      - BUCKET
+      - FASTAPI_REACT_URLS
+      - FASTAPI_INFLUXDB_URL
+      - FASTAPI_TOKEN
+      - FASTAPI_ORG
+      - FASTAPI_BUCKET
+    depends_on:
+      - influxdb
 
   openaq:
     container_name: openaq
@@ -54,7 +56,9 @@ services:
       - backnet
     environment:
       - OPENAQ_URL
-      - API_URL
+      - OPENAQ_API_URL
+    depends_on:
+      - fastapi
 
   grafana:
     container_name: grafana
@@ -72,6 +76,7 @@ services:
       - "3002:3002"
     volumes:
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
+      - grafana-storage:/var/lib/grafana
 
 #  frontend:
 #    container_name: frontend
@@ -89,3 +94,6 @@ networks:
     name: frontnet
   backnet:
     name: backnet
+
+volumes:
+  grafana-storage: {}
