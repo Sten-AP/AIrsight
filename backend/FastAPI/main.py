@@ -51,7 +51,7 @@ def records(response):
             data.update({record.get_field(): record.get_value()})
     return data
 
-def list_items(response):
+def list_all_items(response, start_date = None, stop_date = None):
     records = []
     item_ids = []
     for table in response:
@@ -60,26 +60,47 @@ def list_items(response):
             if record.values["id"] not in item_ids:
                 item_ids.append(record.values["id"])
 
-    data = []
-    for id in item_ids:
-        item = {}
-        for record in records:
-            item.update({"id": id})
-            if id == record.values["id"]:
-                item.update({record.get_field(): record.get_value()})
-        data.append(item)
-    return data
-
-def list_items_with_time(response):
-    records = []
-    item_ids = []
+    if start_date == None and stop_date == None:
+        data = []
+        for id in item_ids:
+            item = {}
+            for record in records:
+                item.update({"id": id})
+                item.update({"time": record["_time"]})
+                if id == record.values["id"]:
+                    item.update({record.get_field(): record.get_value()})
+            data.append(item)
+        return data
+    
+    items = []
     for table in response:
-        for record in table.records:
-            records.append(record)
-            if record.values["id"] not in item_ids:
-                item_ids.append(record.values["id"])
-    print(item_ids)
+        for record in table:
+            print(record)
+            items.append({"id": record["id"], "time": record["_time"], record["_field"]: record["_value"]})
 
+    # data = []
+    # item = []
+    # for item in items:
+    #     print(item)
+    # for i in range(0, len(items), int(len(items)/len(response))):
+    #     for j in range(0, int(len(items)/len(response))):
+    #         print(items[i+j])
+    #         item.append(items[i+j])
+    #         if j == int(len(items)/len(response)):
+    #             data.append(item)
+    #             print(item)
+    #             print()
+    #             item = []
+                
+            # print(items[i+j])
+            # for key in items[i+j].keys():
+                # print(items[i+j][j][key])
+        #         item.update({key: items[i+j][key]})
+        # print(item)
+    #         data.append(item)
+    # for a in data:
+    #     print(a)
+    
 def get_query(param, id = None, data = None, start_date = None, stop_date = None):
     measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
     
@@ -94,13 +115,12 @@ def get_query(param, id = None, data = None, start_date = None, stop_date = None
     time_filter = f"""|> range(start: 0)"""
     if start_date != None and stop_date != None:
         time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
-    print(BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter)
     return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
 
     
 # -----------Routes-----------
 @app.post("/{param}/new/")
-async def add_new_item(data: Data, param: str):
+async def add_new_item(param: str, data: Data):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
     
@@ -120,9 +140,9 @@ async def list_items(param: str):
         return {"error": "parameter does not match"}
     
     try:
-        query = get_query(param=param)
+        query = get_query(param)
         response = read_api.query(query, org=ORG)
-        return list_items(response)
+        return list_all_items(response)
     except Exception as e:
         return {"error": str(e)}
 
@@ -130,13 +150,14 @@ async def list_items(param: str):
 async def list_item_with_id(param: str, id: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
+    
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
     
     try:
         query = get_query(param=param, id=id, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
-        return list_items_with_time(response)
+        return list_all_items(response, start_date, stop_date)
     except Exception as e:
         return {"error": str(e)}
 
@@ -144,13 +165,14 @@ async def list_item_with_id(param: str, id: str, request: Request):
 async def list_data_of_item_with_id(param: str, id: str, data: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
+    
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
     
     try:
         query = get_query(param=param, id=id, data=data, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
-        return list_items_with_time(response)
+        return list_all_items(response, start_date, stop_date)
     except Exception as e:
         return {"error": str(e)}
 
