@@ -92,28 +92,10 @@ async def make_new_sensor_from_wekeo(sensoren: Sensoren):
     except Exception as e:
         return {"message": f"error with adding data to database: {e}"}
 
-
-# @app.get("/openaqsensor/")
-# async def list_of_openaq_sensors():
-#     try:
-#         response = read_api.query(BASE_QUERY+ """|> filter(fn: (r) => r["_measurement"] == "openaqsensor")""", org=ORG)
-#         return list_items(response)
-#     except Exception as e:
-#         return {"error": str(e)}
-
-
-# @app.get("/wekeosensor/")
-# async def list_of_wekeo_sensors():
-#     try:
-#         response = read_api.query(BASE_QUERY+"""|> filter(fn: (r) => r["_measurement"] == "wekeosensor")""", org=ORG)
-#         return list_items(response)
-#     except Exception as e:
-#         return {"error": str(e)}
-
 @app.get("/{param}/")
 async def list_of_wekeo_sensors(param: str):
     if param not in ["wekeosensor", "openaqsensor"]:
-        return {"error: parameter does not match"}
+        return {"error": "parameter does not match"}
     try:
         response = read_api.query(BASE_QUERY+f"""|> filter(fn: (r) => r["_measurement"] == "{param}")""", org=ORG)
         return list_items(response)
