@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns 
+import joblib
 
 training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
 target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
@@ -20,7 +21,7 @@ print("=======target data=======")
 print(target_data.head())
 print(target_data.columns)  
 
-target_variable = "pm10"
+target_variable = input("enter the target variable (pm25, pm10, no2): ")
 
 X =  training_data
 Y = target_data[target_variable]
@@ -32,7 +33,7 @@ print(Y)
 
 
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=41)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 model = LinearRegression()
 model.fit(X_train, Y_train)
 predictions = model.predict(X_test) 
@@ -47,7 +48,6 @@ print("training_accuracy is: ",training_accuracy)
 print("test_accuracy is: ",model.score(X_test,Y_test))
 print('mean_squared_error : ', mean_squared_error(Y_test, predictions)) 
 print('mean_absolute_error : ', mean_absolute_error(Y_test, predictions)) 
-print('r2_score : ', r2_score(Y_test, predictions))
 
 plt.figure(figsize=(8, 6))
 sns.regplot(x=Y_test, y=predictions, scatter_kws={'color':'blue'}, line_kws={'color':'orange'})
