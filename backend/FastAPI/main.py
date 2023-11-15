@@ -40,7 +40,7 @@ app.add_middleware(
 
 
 # -----------Classes-----------
-class Sensoren(BaseModel):
+class Data(BaseModel):
     data: str
 
 
@@ -72,30 +72,26 @@ def list_items(response):
     return data
 
 # -----------Routes-----------
-@app.post("/openaqsensor/new/")
-async def make_new_sensor(sensoren: Sensoren):
-    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
-    try:
-        write_client.write(data_df, data_frame_measurement_name='openaqsensor',
-                    data_frame_tag_columns=['country', 'id'])
-        return {"message": f"sensordata succesfully added to database"}
-    except Exception as e:
-        return {"message": f"error with adding data to database: {e}"}
-
-@app.post("/wekeosensor/new/")
-async def make_new_sensor_from_wekeo(sensoren: Sensoren):
-    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
-    try:
-        write_client.write(data_df, data_frame_measurement_name='wekeosensor',
-                    data_frame_tag_columns=['id'])
-        return {"message": f"sensordata from wekeo succesfully added to database"}
-    except Exception as e:
-        return {"message": f"error with adding data to database: {e}"}
-
-@app.get("/{param}/")
-async def list_of_wekeo_sensors(param: str):
+@app.post("/{param}/new/")
+async def add_new_data(data: Data, param: str):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
+    
+    data_df = read_json(StringIO(data.data), orient="split").set_index('time')
+    try:
+        if param == "openaqsensor":
+            write_client.write(data_df, data_frame_measurement_name=param, data_frame_tag_columns=['country', 'id'])
+        if param == "wekeosensor":
+            write_client.write(data_df, data_frame_measurement_name=param, data_frame_tag_columns=['id'])
+        return {"message": f"{param} data succesfully added to database"}
+    except Exception as e:
+        return {"message": f"error with adding {param} data to database: {e}"}
+
+@app.get("/{param}/")
+async def list_of_data(param: str):
+    if param not in ["wekeosensor", "openaqsensor"]:
+        return {"error": "parameter does not match"}
+    
     try:
         query_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
         response = read_api.query(BASE_QUERY + query_filter, org=ORG)
