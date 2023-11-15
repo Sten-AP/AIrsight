@@ -12,15 +12,19 @@ from io import StringIO
 load_dotenv()
 
 # -----------Constants-----------
-ORG = "AP"
-BUCKET = "airsight"
+REACT_URLS = getenv("REACT_URLS")
+INFLUXDB_URL = getenv("INFLUXDB_URL")
+TOKEN = getenv("TOKEN")
+ORG = getenv("ORG")
+BUCKET = getenv("BUCKET")
+
 BASE_QUERY = f"""from(bucket: "{BUCKET}") 
                 |> range(start: 0)
               """
 
 # -----------InfluxDB-settings-----------
-read_client = InfluxDBClient(url=getenv("INFLUXDB_URL"), token=getenv("TOKEN"), org=ORG)
-write_client = InfluxDBClient3(host=getenv("INFLUXDB_URL"), token=getenv("TOKEN"), org=ORG, database=BUCKET)
+read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
+write_client = InfluxDBClient3(host=INFLUXDB_URL, token=TOKEN, org=ORG, database=BUCKET)
 read_api = read_client.query_api()
 
 
@@ -28,7 +32,7 @@ read_api = read_client.query_api()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=getenv("REACT_URLS"),
+    allow_origins=REACT_URLS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
