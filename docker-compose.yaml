@@ -72,22 +72,17 @@ services:
       - "3002:3002"
     volumes:
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
-    environment:
-      - GRAFANA_ADMIN_USER
-      - GRAFANA_ADMIN_PASSWORD
-      - GRAFANA_ADMIN_EMAIL
-      - GRAFANA_SECRET_KEY
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    restart: always
-    networks:
-      - backnet
-      - frontnet
-    ports:
-      - "80:3000"
-    tty: true
+#  frontend:
+#    container_name: frontend
+#    build: ./frontend
+#    restart: always
+#    networks:
+#      - backnet
+#      - frontnet
+#    ports:
+#      - "80:3000"
+#    tty: true
 
 networks:
   frontnet:
