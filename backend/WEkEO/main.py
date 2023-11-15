@@ -11,9 +11,9 @@ from requests import Session, get
 
 load_dotenv()
 
-USERNAME_WEKEO = getenv("USERNAME_WEKEO")
-PASSWORD = getenv("PASSWORD")
-API_URL = getenv("API_URL")
+USERNAME = getenv("WEKEO_USERNAME")
+PASSWORD = getenv("WEKEO_PASSWORD")
+API_URL = getenv("WEKEO_API_URL")
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
@@ -31,7 +31,7 @@ def get_sensor_locations(response):
 
 
 def main():
-    config = Configuration(user=USERNAME_WEKEO, password=PASSWORD)
+    config = Configuration(user=USERNAME, password=PASSWORD)
     hda_client = Client(config=config)
     session = Session()
     
