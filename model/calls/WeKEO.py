@@ -59,12 +59,14 @@ query = {
     {
       "name": "variable",
       "value": [
-        "carbon_monoxide",
         "particulate_matter_10um",
         "particulate_matter_2.5um",
-        "sulphur_dioxide",
+        "nitrogen_dioxide",
+        "nitrogen_monoxide",
+        "carbon_monoxide",
+        "non_methane_vocs",
         "ozone",
-        "nitrogen_dioxide"
+        "sulphur_dioxide"
       ]
     },
     {
@@ -128,6 +130,7 @@ def read_nc_variables(DATA_DIR, variable_names, start_date):
     for nc_file in nc_files:
         file = nc.Dataset(os.path.join(DATA_DIR, nc_file))
         time_steps = file.variables['time'][:]
+        print(file)
 
         for i, time_step in enumerate(time_steps):
             local_date = start_date + timedelta(hours=int(time_step))
@@ -141,10 +144,10 @@ def read_nc_variables(DATA_DIR, variable_names, start_date):
     
 
 ##left out variables ""o3_conc", "so2_conc", "co_conc"
-variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc"]
+variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc", "nmvoc_conc", "no_conc"]
 
 satellite_df = read_nc_variables(DATA_DIR, variable_names, start_date)
-satellite_df = satellite_df.rename(columns={"Time": "time", "pm10_conc": "pm10", "pm2p5_conc": "pm25", "no2_conc": "no2", "Local_date": "local_date"})
+satellite_df = satellite_df.rename(columns={"Time": "time", "pm10_conc": "pm10", "pm2p5_conc": "pm25", "no2_conc": "no2", "Local_date": "local_date", "nmvoc_conc": "nmvoc", "no_conc": "no", "o3_conc": "o3", "so2_conc": "so2"})
 #satellite_df[["pm10", "pm25", "no2"]] = satellite_df[["pm10", "pm25", "no2"]].apply(lambda x: round(x, 2))
 satellite_df["time"] = satellite_df["time"] % 24
 satellite_df["time"] = satellite_df["time"].astype(int)
