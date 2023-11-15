@@ -18,7 +18,7 @@ def main():
         for result in response.json()['results']:
             sensor = {
                 'id': result['id'],
-                'name': result['name'],
+                'country': result["country"],
                 'lat': result['coordinates']['latitude'],
                 'lon': result['coordinates']['longitude'],
                 'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z"))

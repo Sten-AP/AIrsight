@@ -77,7 +77,7 @@ async def make_new_sensor(sensoren: Sensoren):
     data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
     try:
         write_client.write(data_df, data_frame_measurement_name='openaqsensor',
-                    data_frame_tag_columns=['name', 'id'])
+                    data_frame_tag_columns=['country', 'id'])
         return {"message": f"sensordata succesfully added to database"}
     except Exception as e:
         return {"message": f"error with adding data to database: {e}"}
