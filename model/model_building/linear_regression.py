@@ -11,7 +11,7 @@ training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
 target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
 merged_data = pd.merge(training_data, target_data, on='local_date', how='inner')
 merged_data.drop("local_date", axis=1, inplace=True)
-
+merged_data = merged_data[['pm10_x', 'pm10_y', 'pm25_x', 'pm25_y', 'time_x', 'time_y', 'no2_x', 'no2_y', 'so2', 'nmvoc']]
 
 print("=======training data=======")
 print(training_data.head())
@@ -53,9 +53,3 @@ print("test_accuracy is: ",model.score(X_test,Y_test))
 print('mean_squared_error : ', mean_squared_error(Y_test, predictions)) 
 print('mean_absolute_error : ', mean_absolute_error(Y_test, predictions)) 
 
-plt.figure(figsize=(8, 6))
-sns.regplot(x=Y_test, y=predictions, scatter_kws={'color':'blue'}, line_kws={'color':'orange'})
-plt.xlabel(f'actual {target_variable} values')
-plt.ylabel(f'predicted {target_variable} Values')
-plt.title('regression Line')
-plt.show()
