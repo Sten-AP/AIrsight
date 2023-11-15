@@ -12,11 +12,11 @@ from io import StringIO
 load_dotenv()
 
 # -----------Constants-----------
-REACT_URLS = getenv("REACT_URLS")
-INFLUXDB_URL = getenv("INFLUXDB_URL")
-TOKEN = getenv("TOKEN")
-ORG = getenv("ORG")
-BUCKET = getenv("BUCKET")
+REACT_URLS = getenv("FASTAPI_REACT_URLS")
+INFLUXDB_URL = getenv("FASTAPI_INFLUXDB_URL")
+TOKEN = getenv("FASTAPI_TOKEN")
+ORG = getenv("FASTAPI_ORG")
+BUCKET = getenv("FASTAPI_BUCKET")
 
 BASE_QUERY = f"""from(bucket: "{BUCKET}") 
                 |> range(start: 0)
