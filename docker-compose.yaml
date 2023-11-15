@@ -6,14 +6,11 @@ services:
     restart: always
     stdin_open: true
     tty: true
-    environment:
-      - VIRTUAL_HOST=${SERVER_NAME}
-      - VIRTUAL_PORT=9000
     networks:
       - frontnet
       - backnet
     ports:
-      - "8000:8000"
+      - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/portainer:/data

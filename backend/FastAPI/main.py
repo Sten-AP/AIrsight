@@ -72,7 +72,7 @@ def list_items(response):
     return data
 
 # -----------Routes-----------
-@app.post("/api/openaqsensor/new/")
+@app.post("/openaqsensor/new/")
 async def make_new_sensor(sensoren: Sensoren):
     data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
     try:
@@ -82,7 +82,7 @@ async def make_new_sensor(sensoren: Sensoren):
     except Exception as e:
         return {"message": f"error with adding data to database: {e}"}
 
-@app.post("/api/wekeosensor/new/")
+@app.post("/wekeosensor/new/")
 async def make_new_sensor_from_wekeo(sensoren: Sensoren):
     data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
     try:
@@ -93,7 +93,7 @@ async def make_new_sensor_from_wekeo(sensoren: Sensoren):
         return {"message": f"error with adding data to database: {e}"}
 
 
-@app.get("/api/openaqsensor/")
+@app.get("/openaqsensor/")
 async def list_of_openaq_sensors():
     try:
         response = read_api.query(BASE_QUERY+ """|> filter(fn: (r) => r["_measurement"] == "openaqsensor")""", org=ORG)
@@ -102,7 +102,7 @@ async def list_of_openaq_sensors():
         return {"error": str(e)}
 
 
-@app.get("/api/wekeosensor/")
+@app.get("/wekeosensor/")
 async def list_of_wekeo_sensors():
     try:
         response = read_api.query(BASE_QUERY+"""|> filter(fn: (r) => r["_measurement"] == "wekeosensor")""", org=ORG)
