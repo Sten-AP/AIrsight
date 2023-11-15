@@ -79,7 +79,24 @@ def list_items_with_time(response):
             if record.values["id"] not in item_ids:
                 item_ids.append(record.values["id"])
     print(item_ids)
+
+def get_query(param, id = None, data = None, start_date = None, stop_date = None):
+    measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
     
+    id_filter = ""
+    if id != None:
+        id_filter = f"""|> filter(fn: (r) => r["id"] == "{id}")"""
+    
+    data_filter = ""
+    if data != None:
+        data_filter = f"""|> filter(fn: (r) => r["_field"] == "{data}")"""
+    
+    time_filter = f"""|> range(start: 0)"""
+    if start_date != None and stop_date != None:
+        time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
+    print(BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter)
+    return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
+
     
 # -----------Routes-----------
 @app.post("/{param}/new/")
@@ -103,10 +120,7 @@ async def list_items(param: str):
         return {"error": "parameter does not match"}
     
     try:
-        time_filter = f"""|> range(start: 0)"""
-        measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
-        query = BASE_QUERY + time_filter + measurement_filter
-        
+        query = get_query(param=param)
         response = read_api.query(query, org=ORG)
         return list_items(response)
     except Exception as e:
@@ -118,14 +132,9 @@ async def list_item_with_id(param: str, id: str, request: Request):
         return {"error": "parameter does not match"}
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
+    
     try:
-        time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
-        measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
-        id_filter = f"""|> filter(fn: (r) => r["id"] == "{id}")"""
-        query = BASE_QUERY + measurement_filter + id_filter
-        if start_date != None and stop_date != None:
-            query += time_filter
-            
+        query = get_query(param=param, id=id, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
         return list_items_with_time(response)
     except Exception as e:
@@ -137,15 +146,9 @@ async def list_data_of_item_with_id(param: str, id: str, data: str, request: Req
         return {"error": "parameter does not match"}
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
+    
     try:
-        time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
-        measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
-        id_filter = f"""|> filter(fn: (r) => r["id"] == "{id}")"""
-        data_filter = f"""|> filter(fn: (r) => r["_field"] == "{data}")"""
-        query = BASE_QUERY + measurement_filter + id_filter + data_filter
-        if start_date != None and stop_date != None:
-            query += time_filter
-            
+        query = get_query(param=param, id=id, data=data, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
         return list_items_with_time(response)
     except Exception as e:
