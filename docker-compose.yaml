@@ -1,77 +1,86 @@
-version: '3.0'
+version: "3.0"
 services:
-  portainer:
-    container_name: portainer
-    image: portainer/portainer-ce
-    restart: always
-    stdin_open: true
-    tty: true
-    networks:
-      - frontnet
-      - backnet
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/portainer:/data
+ portainer:
+  container_name: portainer
+  image: portainer/portainer-ce
+  restart: always
+  stdin_open: true
+  tty: true
+  networks:
+   - frontnet
+   - backnet
+  ports:
+   - "9000:9000"
+  volumes:
+   - /var/run/docker.sock:/var/run/docker.sock
+   - /opt/portainer:/data
 
-  influxdb:
-    image: influxdb:latest
-    container_name: influxdb
-    security_opt:
-      - no-new-privileges:true
-    restart: unless-stopped
-    networks:
-      - frontnet
-      - backnet
-    ports:
-      - "8086:8086"
-    volumes:
-      - $DOCKERDIR/appdata/influxdb2/config:/etc/influxdb2
-      - $DOCKERDIR/appdata/influxdb2/db:/var/lib/influxdb2
-    environment:
-      - INFLUXDB_HTTP_LOG_ENABLED=true
+ influxdb:
+  image: influxdb:latest
+  container_name: influxdb
+  security_opt:
+   - no-new-privileges:true
+  restart: unless-stopped
+  networks:
+   - frontnet
+   - backnet
+  ports:
+   - "8086:8086"
+  volumes:
+   - $DOCKERDIR/appdata/influxdb2/config:/etc/influxdb2
+   - $DOCKERDIR/appdata/influxdb2/db:/var/lib/influxdb2
+  environment:
+   - INFLUXDB_HTTP_LOG_ENABLED=true
 
-  fastapi:
-    container_name: fastapi
-    restart: always
-    build: ./backend/FastAPI
-    networks:
-      - backnet
-    ports:
-      - "3000:6000"
+ fastapi:
+  container_name: fastapi
+  restart: always
+  build: ./backend/FastAPI
+  networks:
+   - backnet
+  ports:
+   - "3000:6000"
+  environment:
+   - REACT_URLS
+   - INFLUXDB_URL
+   - TOKEN
+   - ORG
+   - BUCKET
 
-  openaq:
-    container_name: openaq
-    build: ./backend/OpenAQ
-    networks:
-      - backnet
+ openaq:
+  container_name: openaq
+  build: ./backend/OpenAQ
+  networks:
+   - backnet
+  environment:
+   - OPENAQ_URL
+   - API_URL
 
-  grafana:
-    container_name: grafana
-    image: grafana/grafana-oss:latest
-    restart: always
-    networks:
-      - frontnet
-      - backnet
-    ports:
-      - "3002:3002"
-    volumes:
-      - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
+ grafana:
+  container_name: grafana
+  image: grafana/grafana-oss:latest
+  restart: always
+  networks:
+   - frontnet
+   - backnet
+  ports:
+   - "3002:3002"
+  volumes:
+   - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    restart: always
-    networks:
-      - backnet
-      - frontnet
-    ports:
-      - "80:3000"
-    tty: true
+ frontend:
+  container_name: frontend
+  build: ./frontend
+  restart: always
+  networks:
+   - backnet
+   - frontnet
+  ports:
+   - "80:3000"
+  tty: true
 
 networks:
-  frontnet:
-    name: frontnet
-  backnet:
-    name: backnet
+ frontnet:
+  name: frontnet
+ backnet:
+  name: backnet
