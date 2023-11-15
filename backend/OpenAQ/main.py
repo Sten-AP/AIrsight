@@ -7,7 +7,7 @@ from time import sleep
 load_dotenv()
 
 OPENAQ_URL = getenv("OPENAQ_URL")
-API_URL = getenv("API_URL")
+API_URL = getenv("OPENAQ_API_URL")
 
 def main():
     session = Session()
