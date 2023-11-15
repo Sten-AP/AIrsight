@@ -11,7 +11,6 @@ API_URL = getenv("API_URL")
 
 def main():
     session = Session()
-    sleep(10)
     while True:
         response = get(url=OPENAQ_URL, headers={"accept": "application/json"})
         sensoren = []
