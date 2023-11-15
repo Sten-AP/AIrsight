@@ -1,26 +1,27 @@
-import os
 import netCDF4 as nc
 from dotenv import load_dotenv
 from hda import Client, Configuration
 from pandas import Timestamp, DateOffset, DataFrame
-import os
+from os import getenv, path, listdir
 import numpy as np
 from query import query_settings
-import shutil
+from shutil import rmtree
 from dotenv import load_dotenv
 from requests import Session, get
 
 load_dotenv()
 
-API_URL = "http://airsight.westeurope.cloudapp.azure.com:3000"
+USERNAME_WEKEO = getenv("USERNAME_WEKEO")
+PASSWORD = getenv("PASSWORD")
+API_URL = getenv("API_URL")
 
-BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = BASE_DIR+"./data"
+BASE_DIR = path.dirname(__file__)
+DATA_DIR = f"{BASE_DIR}/data"
 NOW = Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 
 
-if os.path.exists(DATA_DIR):
-    shutil.rmtree(DATA_DIR)
+if path.exists(DATA_DIR):
+    rmtree(DATA_DIR)
 
 def get_sensor_locations(response):
     locations = []
@@ -30,12 +31,12 @@ def get_sensor_locations(response):
 
 
 def main():
-    config = Configuration(user=os.getenv("USERNAME_WEKEO"), password=os.getenv("PASSWORD"))
+    config = Configuration(user=USERNAME_WEKEO, password=PASSWORD)
     hda_client = Client(config=config)
     session = Session()
     
     try:
-        response = get(API_URL+"/openaqsensor/").json()
+        response = get(f"{API_URL}/openaqsensor/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
@@ -52,7 +53,7 @@ def main():
         print("downloading data")
         matches.download(DATA_DIR)
     
-        nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
+        nc_files = [f for f in listdir(DATA_DIR) if f.endswith('.nc')]
         data_file = nc.Dataset(f"{DATA_DIR}/{nc_files[i]}")
 
         data = {}
@@ -86,7 +87,7 @@ def main():
             
         print("sending data to database")
         wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-        print(session.post("http://airsight.westeurope.cloudapp.azure.com:3000/wekeosensor/new/", json={"data": wekeo_json}).json())
+        print(session.post(f"{API_URL}/wekeosensor/new/", json={"data": wekeo_json}).json())
 
 
 if __name__ == "__main__":
