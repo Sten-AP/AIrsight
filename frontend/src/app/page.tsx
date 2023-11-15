@@ -27,7 +27,7 @@ export default function Page() {
        <Card>
         {/* Placeholder to set height */}
         {/* <div className="h-28" /> */}
-        <iframe src="http://airsight.westeurope.cloudapp.azure.com:3002/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=2&refresh=10min" width="100%" height="200px"></iframe>
+        <iframe src="http://airsight.westeurope.cloudapp.azure.com:3002/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=4&refresh=10min" width="100%" height="200px"></iframe>
        </Card>
       </Grid>
       <div className="mt-6">

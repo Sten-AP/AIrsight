@@ -97,10 +97,11 @@ async def list_of_wekeo_sensors(param: str):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
     try:
-        response = read_api.query(BASE_QUERY+f"""|> filter(fn: (r) => r["_measurement"] == "{param}")""", org=ORG)
+        query_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
+        response = read_api.query(BASE_QUERY + query_filter, org=ORG)
         return list_items(response)
     except Exception as e:
         return {"error": str(e)}
-
+    
 if __name__ == "__main__":
     run("main:app", host="0.0.0.0", port=6000, reload=True)
