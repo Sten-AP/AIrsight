@@ -47,3 +47,6 @@ It'll give us a better idea on how to form a dataset and which variables to sepe
 **nmvoc**: pm25, no2, so2, co_conc, and no == high positive correlation.
 
 **no**: pm25, no2, so2, co_conc, and nmvoc == high positive correlation
+
+## Remarks
+NO seems to heavily lower test results for the models, I suggest just leaving it off.
