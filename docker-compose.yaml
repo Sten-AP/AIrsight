@@ -78,17 +78,6 @@ services:
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
       - grafana-storage:/var/lib/grafana
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    restart: always
-    networks:
-      - backnet
-      - frontnet
-    ports:
-      - "80:3000"
-    tty: true
-
 networks:
   frontnet:
     name: frontnet
