@@ -1,6 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, WebSocket
-from pandas import read_json
+from fastapi import FastAPI, Request
+from pandas import read_json, Timestamp
+from pandas.tseries.offsets import Hour
 from pydantic import BaseModel
 from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
@@ -11,16 +12,15 @@ from io import StringIO
 
 load_dotenv()
 
+## TIME FILTER FORMAT: 2023-11-15T12:00:00.000Z
+
 # -----------Constants-----------
 REACT_URLS = getenv("FASTAPI_REACT_URLS")
 INFLUXDB_URL = getenv("FASTAPI_INFLUXDB_URL")
 TOKEN = getenv("FASTAPI_TOKEN")
 ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
-
-BASE_QUERY = f"""from(bucket: "{BUCKET}") 
-                |> range(start: 0)
-              """
+BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
 
 # -----------InfluxDB-settings-----------
 read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
@@ -40,7 +40,7 @@ app.add_middleware(
 
 
 # -----------Classes-----------
-class Sensoren(BaseModel):
+class Data(BaseModel):
     data: str
 
 
@@ -52,7 +52,7 @@ def records(response):
             data.update({record.get_field(): record.get_value()})
     return data
 
-def list_items(response):
+def list_all_items(response, start_date = None, stop_date = None):
     records = []
     item_ids = []
     for table in response:
@@ -61,54 +61,116 @@ def list_items(response):
             if record.values["id"] not in item_ids:
                 item_ids.append(record.values["id"])
 
+    if start_date == None and stop_date == None:
+        data = []
+        for id in item_ids:
+            item = {}
+            for record in records:
+                item.update({"id": id})
+                item.update({"time": record["_time"]})
+                if id == record.values["id"]:
+                    item.update({record.get_field(): record.get_value()})
+            data.append(item)
+        return data
+    
+    start_date = str(Timestamp(start_date, tz='UCT')).replace(" ", "T")
+    stop_date = str(Timestamp(stop_date, tz='UCT')).replace(" ", "T")
+    
+    
+    times = []
+    for record in records:
+        if record['_time'] not in times:
+            times.append(record['_time'])
+    
     data = []
-    for id in item_ids:
+    for time in times:
         item = {}
         for record in records:
-            item.update({"id": id})
-            if id == record.values["id"]:
-                item.update({record.get_field(): record.get_value()})
-        data.append(item)
+            if time == record["_time"]:
+                item.update({'id': record['id']})
+                item.update({'time': str(record['_time']).replace(" ", "T")})
+                item.update({record["_field"]: record["_value"]})
+                if item not in data:
+                    data.append(item)
     return data
+    
+def get_query(param, id = None, data = None, start_date = None, stop_date = None):
+    measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
+    
+    id_filter = ""
+    if id != None:
+        id_filter = f"""|> filter(fn: (r) => r["id"] == "{id}")"""
+    
+    data_filter = ""
+    if data != None:
+        data_filter = f"""|> filter(fn: (r) => r["_field"] == "{data}")"""
+    
+    time_filter = f"""|> range(start: 0)"""
+    if start_date != None and stop_date != None:
+        time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
+        
+    return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
 
+    
 # -----------Routes-----------
-@app.post("/openaqsensor/new/")
-async def make_new_sensor(sensoren: Sensoren):
-    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
+@app.post("/api/{param}/new/")
+async def add_new_item(param: str, data: Data):
+    if param not in ["wekeosensor", "openaqsensor"]:
+        return {"error": "parameter does not match"}
+    
+    data_df = read_json(StringIO(data.data), orient="split").set_index('time')
     try:
-        write_client.write(data_df, data_frame_measurement_name='openaqsensor',
-                    data_frame_tag_columns=['country', 'id'])
-        return {"message": f"sensordata succesfully added to database"}
+        if param == "openaqsensor":
+            write_client.write(data_df, data_frame_measurement_name=param, data_frame_tag_columns=['country', 'id'])
+        if param == "wekeosensor":
+            write_client.write(data_df, data_frame_measurement_name=param, data_frame_tag_columns=['id'])
+        return {"message": f"{param} data succesfully added to database"}
     except Exception as e:
-        return {"message": f"error with adding data to database: {e}"}
+        return {"message": f"error with adding {param} data to database: {e}"}
 
-@app.post("/wekeosensor/new/")
-async def make_new_sensor_from_wekeo(sensoren: Sensoren):
-    data_df = read_json(StringIO(sensoren.data), orient="split").set_index('time')
+@app.get("/api/{param}/")
+async def list_items(param: str):
+    if param not in ["wekeosensor", "openaqsensor"]:
+        return {"error": "parameter does not match"}
+    
     try:
-        write_client.write(data_df, data_frame_measurement_name='wekeosensor',
-                    data_frame_tag_columns=['id'])
-        return {"message": f"sensordata from wekeo succesfully added to database"}
-    except Exception as e:
-        return {"message": f"error with adding data to database: {e}"}
-
-
-@app.get("/openaqsensor/")
-async def list_of_openaq_sensors():
-    try:
-        response = read_api.query(BASE_QUERY+ """|> filter(fn: (r) => r["_measurement"] == "openaqsensor")""", org=ORG)
-        return list_items(response)
+        query = get_query(param)
+        response = read_api.query(query, org=ORG)
+        return list_all_items(response)
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/api/{param}/{id}/")
+async def list_item_with_id(param: str, id: str, request: Request):
+    if param not in ["wekeosensor", "openaqsensor"]:
+        return {"error": "parameter does not match"}
+    
+    start_date = request.headers.get('start_date')
+    stop_date = request.headers.get('stop_date')
 
-@app.get("/wekeosensor/")
-async def list_of_wekeo_sensors():
     try:
-        response = read_api.query(BASE_QUERY+"""|> filter(fn: (r) => r["_measurement"] == "wekeosensor")""", org=ORG)
-        return list_items(response)
+        query = get_query(param=param, id=id, start_date=start_date, stop_date=stop_date)
+        response = read_api.query(query, org=ORG)
+        return list_all_items(response, start_date, stop_date)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/{param}/{id}/{data}/")
+async def list_data_of_item_with_id(param: str, id: str, data: str, request: Request):
+    if param not in ["wekeosensor", "openaqsensor"]:
+        return {"error": "parameter does not match"}
+    
+    start_date = request.headers.get('start_date')
+    stop_date = request.headers.get('stop_date')
+    
+    try:
+        query = get_query(param=param, id=id, data=data, start_date=start_date, stop_date=stop_date)
+        response = read_api.query(query, org=ORG)
+        return list_all_items(response, start_date, stop_date)
     except Exception as e:
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True)
+    run("main:app", host="0.0.0.0", port=5000, reload=True)
+
+
