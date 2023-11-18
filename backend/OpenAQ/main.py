@@ -32,7 +32,7 @@ def main():
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
         try:
-            print(session.post(f"{API_URL}/openaqsensor/new/", json={"data": sensoren_json}).json())
+            print(session.post(f"{API_URL}/api/openaqsensor/new/", json={"data": sensoren_json}).json())
         except Exception as e:
             print(f"Error posting data: {e}")
         sleep(1800)
