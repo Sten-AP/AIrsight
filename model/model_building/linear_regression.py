@@ -6,13 +6,11 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
-from sklearn2pmml import PMMLPipeline, sklearn2pmml
 
 training_data = pd.read_csv('../calls/datasets/wekeo_data.csv')
 target_data = pd.read_csv('../calls/datasets/openAQ_data.csv')
 
 # training_data.drop("time", axis=1, inplace=True)
-
 
 print("=======training data=======")
 print(training_data.head())
@@ -55,12 +53,6 @@ plt.xlabel(f'actual {target_variable} values')
 plt.ylabel(f'predicted {target_variable} Values')
 plt.title('regression Line')
 plt.show()
-
-# package iris classifier model with PMML
-# sklearn2pmml(PMMLPipeline([("estimator",
-#                             model)]),
-#              "linear_regression.pmml",
-#              with_repr=True)
 
 # save the model
 filename = 'linear_model_2.sav'
