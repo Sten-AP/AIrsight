@@ -1,6 +1,5 @@
 def query_settings(lat, lon, start_date, end_date):
 	box = 0.05
-
 	query =  {
 		"datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
 		"boundingBoxValues": [
@@ -23,12 +22,6 @@ def query_settings(lat, lon, start_date, end_date):
 		],
 		"multiStringSelectValues": [
 			{
-			"name": "model",
-			"value": [
-				"chimere"
-			]
-			},
-			{
 			"name": "variable",
 			"value": [
 				"particulate_matter_10um",
@@ -40,9 +33,9 @@ def query_settings(lat, lon, start_date, end_date):
 			]
 			},
 			{
-			"name": "type",
+			"name": "model",
 			"value": [
-				"analysis"
+				"chimere"
 			]
 			},
 			{
@@ -52,9 +45,9 @@ def query_settings(lat, lon, start_date, end_date):
 			]
 			},
 			{
-			"name": "leadtime_hour",
+			"name": "type",
 			"value": [
-				"0"
+				"analysis"
 			]
 			},
 			{
@@ -84,6 +77,12 @@ def query_settings(lat, lon, start_date, end_date):
 				"21:00",
 				"22:00",
 				"23:00"
+			]
+			},
+			{
+			"name": "leadtime_hour",
+			"value": [
+				"0"
 			]
 			}
 		],
