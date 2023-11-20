@@ -35,7 +35,18 @@ def query_settings(lat, lon, start_date, end_date):
 			{
 			"name": "model",
 			"value": [
-				"chimere"
+        # "ensemble", # Enseble median
+				# "chimere",  # INERIS (France)
+        # "dehm",     # AARHUS UNIVERSITY (Denmark)
+        # "emep",		  # MET Norway (Norway)
+        # "euradim",  # Jülich IEK (Germany)
+        # "gemaq",		# IEP-NRI (Poland)
+        "lotos",		  # KNMI and TNO (Netherlands)
+        # "match",		# SMHI (Sweden)
+        # "minni",    # ENEA (Italy)
+        # "mocage",		# METEO-FRANCE (France)
+        # "monarch",	# BSC (Spain)
+        # "silam"			# FMI (Finland)
 			]
 			},
 			{

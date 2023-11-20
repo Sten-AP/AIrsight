@@ -38,8 +38,8 @@ def get_sensor_locations():
 
 
 def main(id, lat, lon, days):
-    start_date = (Timestamp(NOW, tz='UCT') - DateOffset(days)).strftime('%Y-%m-%d')
-    end_date = Timestamp(NOW, tz='UCT').strftime('%Y-%m-%d')
+    start_date = (Timestamp(NOW, tz='UCT') - DateOffset(days+1)).strftime('%Y-%m-%d')
+    end_date = (Timestamp(NOW, tz='UCT') - DateOffset(days)).strftime('%Y-%m-%d')
     
     print(f"[>] {start_date} -> {end_date} [<] searching lat: {lat}, lon: {lon}")
     query = query_settings(lat, lon, start_date, end_date)
@@ -47,10 +47,10 @@ def main(id, lat, lon, days):
         
     print("downloading data")
     matches.download(DATA_DIR)
-    
+    print(matches.results)
     nc_files = [f for f in listdir(DATA_DIR) if f.endswith('.nc')]
     data_file = nc.Dataset(f"{DATA_DIR}/{nc_files[0]}")
-    remove(f"{DATA_DIR}/{nc_files[0]}")
+    # data_file = matches.results
         
     data = {}
     for key in data_file.variables.keys():
@@ -84,21 +84,22 @@ def main(id, lat, lon, days):
     print("sending data to database")
     wekeo_json = DataFrame(wekeo).to_json(orient="split")        
     print(Session().post(f"{API_URL}/wekeosensor/new/", json={"data": wekeo_json}).json())
+    remove(f"{DATA_DIR}/{nc_files[0]}")
 
 
 if __name__ == "__main__":
     config = Configuration(user=USERNAME, password=PASSWORD)
-    hda_client = Client(config=config)
+    hda_client = Client(config=config, progress=True)
     
     sensor_locations = get_sensor_locations()
-    
-    maxthreads = 10
-    days = 10
-    for sensor in sensor_locations:
-        active_threads = threading.active_count()
-        if active_threads <= maxthreads:
-            worker = threading.Thread(target=main, args=(sensor['id'], sensor['lat'],sensor['lon'], days,))
-            worker.start()
-        print(f"Threads active: {active_threads}")
-        while active_threads == maxthreads:
-            sleep(10)
+    main(sensor_locations[0]['id'], sensor_locations[0]['lat'],sensor_locations[0]['lon'], 1)
+    # maxthreads = 1
+    # days = 1
+    # for sensor in sensor_locations:
+    #     active_threads = threading.active_count()
+    #     if active_threads <= maxthreads:
+    #         worker = threading.Thread(target=main, args=(sensor['id'], sensor['lat'],sensor['lon'], days,))
+    #         worker.start()
+    #     print(f"Threads active: {active_threads}")
+    #     while active_threads == maxthreads:
+    #         sleep(10)
