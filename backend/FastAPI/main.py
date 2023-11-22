@@ -27,7 +27,6 @@ read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
 write_client = InfluxDBClient3(host=INFLUXDB_URL, token=TOKEN, org=ORG, database=BUCKET)
 read_api = read_client.query_api()
 
-
 # -----------App-settings-----------
 app = FastAPI()
 app.add_middleware(
@@ -52,7 +51,8 @@ def records(response):
             data.update({record.get_field(): record.get_value()})
     return data
 
-def list_all_items(response, start_date = None, stop_date = None):
+
+def list_all_items(response, start_date=None, stop_date=None):
     records = []
     item_ids = []
     for table in response:
@@ -61,7 +61,7 @@ def list_all_items(response, start_date = None, stop_date = None):
             if record.values["id"] not in item_ids:
                 item_ids.append(record.values["id"])
 
-    if start_date == None and stop_date == None:
+    if start_date is None and stop_date is None:
         data = []
         for id in item_ids:
             item = {}
@@ -72,16 +72,15 @@ def list_all_items(response, start_date = None, stop_date = None):
                     item.update({record.get_field(): record.get_value()})
             data.append(item)
         return data
-    
+
     start_date = str(Timestamp(start_date, tz='UCT')).replace(" ", "T")
     stop_date = str(Timestamp(stop_date, tz='UCT')).replace(" ", "T")
-    
-    
+
     times = []
     for record in records:
         if record['_time'] not in times:
             times.append(record['_time'])
-    
+
     data = []
     for time in times:
         item = {}
@@ -93,31 +92,32 @@ def list_all_items(response, start_date = None, stop_date = None):
                 if item not in data:
                     data.append(item)
     return data
-    
-def get_query(param, id = None, data = None, start_date = None, stop_date = None):
+
+
+def get_query(param, id=None, data=None, start_date=None, stop_date=None):
     measurement_filter = f"""|> filter(fn: (r) => r["_measurement"] == "{param}")"""
-    
+
     id_filter = ""
-    if id != None:
+    if id is not None:
         id_filter = f"""|> filter(fn: (r) => r["id"] == "{id}")"""
-    
+
     data_filter = ""
-    if data != None:
+    if data is not None:
         data_filter = f"""|> filter(fn: (r) => r["_field"] == "{data}")"""
-    
+
     time_filter = f"""|> range(start: 0)"""
-    if start_date != None and stop_date != None:
+    if start_date is not None and stop_date is not None:
         time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
-        
+
     return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
 
-    
+
 # -----------Routes-----------
 @app.post("/api/{param}/new/")
 async def add_new_item(param: str, data: Data):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    
+
     data_df = read_json(StringIO(data.data), orient="split").set_index('time')
     try:
         if param == "openaqsensor":
@@ -128,11 +128,12 @@ async def add_new_item(param: str, data: Data):
     except Exception as e:
         return {"message": f"error with adding {param} data to database: {e}"}
 
+
 @app.get("/api/{param}/")
 async def list_items(param: str):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    
+
     try:
         query = get_query(param)
         response = read_api.query(query, org=ORG)
@@ -140,11 +141,12 @@ async def list_items(param: str):
     except Exception as e:
         return {"error": str(e)}
 
+
 @app.get("/api/{param}/{id}/")
 async def list_item_with_id(param: str, id: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    
+
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
 
@@ -155,14 +157,15 @@ async def list_item_with_id(param: str, id: str, request: Request):
     except Exception as e:
         return {"error": str(e)}
 
+
 @app.get("/api/{param}/{id}/{data}/")
 async def list_data_of_item_with_id(param: str, id: str, data: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    
+
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
-    
+
     try:
         query = get_query(param=param, id=id, data=data, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
@@ -170,7 +173,6 @@ async def list_data_of_item_with_id(param: str, id: str, data: str, request: Req
     except Exception as e:
         return {"error": str(e)}
 
+
 if __name__ == "__main__":
     run("main:app", host="0.0.0.0", port=6000, reload=True)
-
-
