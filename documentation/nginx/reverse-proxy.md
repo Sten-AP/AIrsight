@@ -3,6 +3,12 @@
 The following code is specified in the config file for the Nginx server or server block:
 
 ```
+# this is required to proxy Grafana Live WebSocket connections.
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
+
 server {
     root /var/www/airsight.cloudsin.space/html;
     index index.html;
@@ -28,6 +34,23 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # API docs
+    location /api/docs {
+        proxy_pass http://localhost:3000/docs;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /openapi.json {
+        proxy_pass http://localhost:3000/openapi.json;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     # Reverse Proxy for :3002
     location /grafana/ {
         proxy_pass http://localhost:3002;
@@ -35,6 +58,13 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Proxy Grafana Live WebSocket connections.
+    location /grafana/api/live/ {
+       proxy_http_version 1.1;
+       proxy_set_header Host $http_host;
+       proxy_pass http://localhost:3002;
     }
 
     # Reverse Proxy for :8086
