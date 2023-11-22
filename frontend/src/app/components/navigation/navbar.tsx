@@ -7,8 +7,9 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
 const navigation = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'About', href: '/about' }
+  { name: 'Home', href: '/' },
+  { name: 'Insights', href: '/insights' },
+  { name: 'DataHub', href: '/datahub'}
 ];
 
 function classNames(...classes: string[]) {
@@ -22,7 +23,7 @@ export default function Navbar() {
     <Disclosure as="nav" className="bg-white shadow-sm">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
                 <div className="flex flex-shrink-0 items-center">
