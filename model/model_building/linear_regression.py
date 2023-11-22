@@ -11,7 +11,7 @@ training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
 target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
 merged_data = pd.merge(training_data, target_data, on='local_date', how='inner')
 merged_data.drop("local_date", axis=1, inplace=True)
-merged_data = merged_data[['pm10_x', 'pm10_y', 'pm25_x', 'pm25_y', 'time_x', 'time_y', 'no2_x', 'no2_y', 'so2', 'nmvoc']]
+merged_data = merged_data[['pm10_x', 'pm10_y', 'pm25_x', 'pm25_y', 'no2_x', 'no2_y', 'so2', 'nmvoc']]
 
 print("=======training data=======")
 print(training_data.head())
@@ -25,7 +25,7 @@ print("=======merged data=======")
 print(merged_data.head())
 print(merged_data.columns)  
 
-target_variable = input("enter the target variable (pm25_y, pm10_x, no2_x): ")
+target_variable = input("enter the target variable (pm25, pm10, no2): ")
 
 X = merged_data.drop(target_variable, axis=1)
 Y = merged_data[target_variable]

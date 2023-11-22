@@ -6,3 +6,4 @@ df.drop("local_date", axis=1, inplace=True)
 correlation = df.corr()
 
 print(correlation)
+
