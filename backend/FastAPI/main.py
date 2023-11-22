@@ -146,7 +146,7 @@ async def list_item_with_id(param: str, id: str, request: Request):
     
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
-
+    print(start_date, stop_date)
     try:
         query = get_query(param=param, id=id, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
