@@ -143,7 +143,7 @@ async def list_items(param: str):
 async def list_item_with_id(param: str, id: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    
+    print(request.headers)
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
     print(start_date, stop_date)
