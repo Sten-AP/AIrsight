@@ -143,10 +143,10 @@ async def list_items(param: str):
 async def list_item_with_id(param: str, id: str, request: Request):
     if param not in ["wekeosensor", "openaqsensor"]:
         return {"error": "parameter does not match"}
-    print(request.headers)
+
     start_date = request.headers.get('start_date')
     stop_date = request.headers.get('stop_date')
-    print(start_date, stop_date)
+
     try:
         query = get_query(param=param, id=id, start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
@@ -170,6 +170,6 @@ async def list_data_of_item_with_id(param: str, id: str, data: str, request: Req
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, reload=True, proxy_headers=True, forwarded_allow_ips='*')
+    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips='*')
 
 
