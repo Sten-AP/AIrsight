@@ -5,10 +5,12 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 import joblib
 
+datasets_dir = os.path.dirname(os.path.abspath("model\calls\datasets\datasets"))
 training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
 target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
 merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
 merged_data.drop("local_date", axis=1, inplace=True)
+merged_data.to_csv(os.path.join(datasets_dir, 'merged_data.csv'), index=False)
 
 best_combinations = {
     "pm10": [
