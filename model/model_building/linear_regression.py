@@ -5,8 +5,11 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 import joblib
 
-training_data = pd.read_csv("model\calls\datasets\wekeo_data.csv")
-target_data = pd.read_csv("model\calls\datasets\openAQ_data.csv")
+wekeo_path = "../calls/datasets/wekeo_data.csv"
+openaq_path = "../calls/datasets/openAQ_data.csv"
+
+training_data = pd.read_csv(wekeo_path)
+target_data = pd.read_csv(openaq_path)
 merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
 merged_data.drop("local_date", axis=1, inplace=True)
 
@@ -56,14 +59,20 @@ print("=======merged data=======")
 print(merged_data.head())
 print(merged_data.columns)
 
-target_variable = input("enter the target variable (pm25, pm10, no2): ")
+target_variable = input("Which target variable would you like to train on? \n"
+                        "1. pm10 \n"
+                        "2. pm2,5 \n"
+                        "3. NO2 \n")
 
-if target_variable == "pm25_y":
+if "1" in target_variable:
     merged_data = merged_data[best_combinations["pm25"]]
-elif target_variable == "pm10_y":
+    target_variable = "pm25_y"
+elif "2" in target_variable:
     merged_data = merged_data[best_combinations["pm10"]]
-elif target_variable == "no2_y":
+    target_variable = "pm10_y"
+elif "3" in target_variable:
     merged_data = merged_data[best_combinations["no2"]]
+    target_variable = "no2_y"
 
 X = merged_data.drop(target_variable, axis=1)
 Y = merged_data[target_variable]
