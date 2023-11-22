@@ -34,6 +34,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["start_date", "stop_date"]
 )
 
 
@@ -169,6 +170,6 @@ async def list_data_of_item_with_id(param: str, id: str, data: str, request: Req
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True)
+    run("main:app", host="0.0.0.0", port=6000, reload=True)
 
 
