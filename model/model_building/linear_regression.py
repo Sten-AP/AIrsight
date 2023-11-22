@@ -66,12 +66,14 @@ print(merged_data.columns)
 
 target_variable = input("enter the target variable (pm25, pm10, no2): ")
 
-if target_variable == "pm25_y":
+if target_variable == "pm25":
     merged_data = merged_data[best_combinations["pm25"]]
-elif target_variable == "pm10_y":
+elif target_variable == "pm10":
     merged_data = merged_data[best_combinations["pm10"]]
-elif target_variable == "no2_y":
+elif target_variable == "no2":
     merged_data = merged_data[best_combinations["no2"]]
+
+target_variable = target_variable + "_y"
 
 X = merged_data.drop(target_variable, axis=1)
 Y = merged_data[target_variable]
