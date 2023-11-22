@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Card, Grid, Title, Text, Tab, TabList, TabGroup, TabPanel, TabPanels } from "@tremor/react";
 
 export default function Page() {
+  const grafanaRefreshRate: string = '600s';
   return (
     <>
       <Title>Insights</Title>
@@ -18,7 +19,7 @@ export default function Page() {
                 {/* Placeholder to set height */}
                 {/* <div className="h-28" /> */}
                 <iframe
-                  src='https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=2&refresh=10min'
+                  src={`https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=2&refresh=${grafanaRefreshRate}`}
                   width='100%'
                   height='200px'></iframe>
               </Card>
@@ -26,7 +27,7 @@ export default function Page() {
                 {/* Placeholder to set height */}
                 {/* <div className="h-28" /> */}
                 <iframe
-                  src='https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=3&refresh=10min'
+                  src={`https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=3&refresh=${grafanaRefreshRate}`}
                   width='100%'
                   height='200px'></iframe>
               </Card>
@@ -34,7 +35,7 @@ export default function Page() {
                 {/* Placeholder to set height */}
                 {/* <div className="h-28" /> */}
                 <iframe
-                  src='https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=4&refresh=10min'
+                  src={`https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=4&refresh=${grafanaRefreshRate}`}
                   width='100%'
                   height='200px'></iframe>
               </Card>
@@ -44,7 +45,7 @@ export default function Page() {
                 {/* Placeholder to set height */}
                 {/* <div className="h-80" /> */}
                 <iframe
-                  src='https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=1&refresh=60min'
+                  src={`https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=1&refresh=${grafanaRefreshRate}`}
                   width='100%'
                   height='200px'></iframe>
               </Card>
