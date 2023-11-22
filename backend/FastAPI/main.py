@@ -30,7 +30,7 @@ read_api = read_client.query_api()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware(),
-    expose_headers=("start_date", "stop_date"),
+    expose_headers=["start_date", "stop_date"],
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
