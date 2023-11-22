@@ -19,8 +19,7 @@ API_URL = getenv("WEKEO_API_URL")
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
-DAYS = 1
-MAX_THREADS = 10
+DAYS = 7
 
 
 if path.exists(DATA_DIR):
@@ -34,12 +33,13 @@ def get_sensor_locations():
         
     locations = []
     for sensor in response:
-        locations.append({'id': sensor['id'], 'lon': sensor['lon'], 'lat': sensor['lat']})              
+        if sensor['id'] in ["4926", "4463", "3036", "4861", "5698"]:
+            locations.append({'id': sensor['id'], 'lon': sensor['lon'], 'lat': sensor['lat']})              
     return locations
 
 def start_and_end_date(days):
-    start_date = (Timestamp.now(tz='UCT') - DateOffset(days+1)).strftime('%Y-%m-%d')
-    end_date = (Timestamp.now(tz='UCT') - DateOffset(days)).strftime('%Y-%m-%d')
+    start_date = (Timestamp.now(tz='UCT') - DateOffset(days)).strftime('%Y-%m-%d')
+    end_date = (Timestamp.now(tz='UCT') - DateOffset(0)).strftime('%Y-%m-%d')
     return [start_date, end_date]
 
 def download_data(id, lat, lon, days):
@@ -96,17 +96,20 @@ def post_data(start_date):
 def main():
     sensor_locations = get_sensor_locations()
     for sensor in sensor_locations:
+        worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
+        worker.start()
+        sleep(1)
         active_threads = threading.active_count()
-        if active_threads <= MAX_THREADS:
-            worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
-            worker.start()
         print(f"Threads active: {active_threads}")
-        while active_threads == MAX_THREADS:
-            sleep(10)
-                    
+
+    while True:
+        print(threading.active_count())
+        if threading.active_count() == 2:
+            break
+        sleep(5)
+    
     post_data(start_and_end_date(DAYS)[0])
     
-
 
 if __name__ == "__main__":
     config = Configuration(user=USERNAME, password=PASSWORD)
