@@ -7,7 +7,7 @@ from time import sleep
 load_dotenv()
 
 OPENAQ_URL = getenv("OPENAQ_URL")
-API_URL = getenv("API_URL")
+API_URL = getenv("OPENAQ_API_URL")
 
 def main():
     session = Session()
@@ -18,7 +18,7 @@ def main():
         for result in response.json()['results']:
             sensor = {
                 'id': result['id'],
-                'name': result['name'],
+                'country': result["country"],
                 'lat': result['coordinates']['latitude'],
                 'lon': result['coordinates']['longitude'],
                 'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z"))
@@ -32,7 +32,7 @@ def main():
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
         try:
-            print(session.post(f"{API_URL}/openaqsensor/new/", json={"data": sensoren_json}).json())
+            print(session.post(f"{API_URL}/api/openaqsensor/new/", json={"data": sensoren_json}).json())
         except Exception as e:
             print(f"Error posting data: {e}")
         sleep(1800)
