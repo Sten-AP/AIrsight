@@ -64,6 +64,11 @@ services:
     container_name: grafana
     image: grafana/grafana-oss:latest
     restart: always
+    environment:
+      - GRAFANA_ADMIN_USER
+      - GRAFANA_ADMIN_PASSWORD
+      - GRAFANA_ADMIN_EMAIL
+      - GRAFANA_SECRET_KEY
     networks:
       - frontnet
       - backnet
