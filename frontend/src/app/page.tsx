@@ -17,24 +17,24 @@ export default function Page() {
        <Card>
         {/* Placeholder to set height */}
         {/* <div className="h-28" /> */}
-        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=2&refresh=10min" width="100%" height="200px"></iframe>
+        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=2&refresh=600s" width="100%" height="200px"></iframe>
        </Card>
        <Card>
         {/* Placeholder to set height */}
         {/* <div className="h-28" /> */}
-        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=3&refresh=10min" width="100%" height="200px"></iframe>
+        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=3&refresh=600s" width="100%" height="200px"></iframe>
        </Card>
        <Card>
         {/* Placeholder to set height */}
         {/* <div className="h-28" /> */}
-        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=4&refresh=10min" width="100%" height="200px"></iframe>
+        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=4&refresh=600s" width="100%" height="200px"></iframe>
        </Card>
       </Grid>
       <div className="mt-6">
        <Card>
         {/* Placeholder to set height */}
         {/* <div className="h-80" /> */}
-        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=1&refresh=60min" width="100%" height="200px"></iframe>
+        <iframe src="https://airsight.cloudsin.space/grafana/d-solo/bb08a297-a2d9-458a-9d7c-06258271aec3/airsight?orgId=1&theme=light&panelId=1&refresh=600s" width="100%" height="200px"></iframe>
        </Card>
       </div>
      </TabPanel>
