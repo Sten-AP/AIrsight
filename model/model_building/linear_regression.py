@@ -60,7 +60,6 @@ print("=======predictions=======")
 print(predictions)
 print("=======Y_test=======")
 print(Y_test)
-#pearplot
 training_accuracy = model.score(X_train,Y_train)
 print("training_accuracy is: ",training_accuracy)
 print("test_accuracy is: ",model.score(X_test,Y_test))
