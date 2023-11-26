@@ -104,4 +104,4 @@ async def get_specific_data_by_param_and_id(param: str, id: str, data: str, date
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'])
+    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'])
