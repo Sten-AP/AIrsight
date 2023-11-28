@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 import joblib
 
-datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "calls", "single_sensor", "datasets")
+datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "calls", "multiple_sensors", "datasets")
 
 training_data_path = os.path.join(datasets_dir, "wekeo_data.csv")
 target_data_path = os.path.join(datasets_dir, "openAQ_data.csv")
@@ -15,39 +15,17 @@ training_data = pd.read_csv(training_data_path)
 target_data = pd.read_csv(target_data_path)
 
 merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
-merged_data.drop("local_date", axis=1, inplace=True)
+merged_data = merged_data.dropna()
 merged_data.to_csv(merged_data_path, index=False)
+merged_data.drop("local_date", axis=1, inplace=True)
+
 
 best_combinations = {
-    "pm10": [
-        "pm25_x",
-        "pm25_y",
-        "pm10_x",
-        "pm10_y",
-        "no2_x",
-        "no2_y",
-        "so2",
-        "co_conc",
-        "nmvoc",
-    ],
-    "pm25": [
-        "pm10_x",
-        "pm10_y",
-        "pm25_x",
-        "pm25_y",
-        "time_x",
-        "time_y",
-        "no2_x",
-        "no2_y",
-        "so2",
-        "nmvoc",
-    ],
-    "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "nmvoc", "co_conc"],
-    "o3": ["time"],
-    "so2": ["no2_x", "no2_y", "co_conc", "nmvoc", "no"],
-    "co": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "nmvoc", "no"],
-    "nmvoc": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "co_conc", "no"],
-    "no": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "co_conc", "nmvoc"],
+    "pm10": ["pm25_x", "pm25_y", "pm10_y", "no2_x", "no2_y", "so2_x", "so2_y", "co"],
+    "pm25": ["pm10_x", "pm10_y", "pm25_y", "Unnamed: 0_x", "no2_x", "no2_y", "so2_y"],
+    "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y", "co"],
+    "so2": ["no2_x", "no2_y", "co"],
+    "co": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y"]
 }
 
 filename = ""
