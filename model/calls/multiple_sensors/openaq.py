@@ -12,46 +12,30 @@ if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
 def process_sensor(sensor_id):
-    URL_OPENAQ = f"https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-31T08%3A00%3A00-16%3A00&page=1&offset=0&limit=100000&sort=desc&radius=1000&country=BE&location_id={sensor_id}&order_by=datetime"
+    URL_OPENAQ = f"https://airsight.cloudsin.space/api/openaqsensor/{sensor_id}"
     HEADERS = {"accept": "application/json"}
+    BODY = {
+        "start_date": "2023-11-16T12:00:00.00",
+        "stop_date": "2023-11-20T12:00:00.00"
+    }
 
-    response = requests.get(url=URL_OPENAQ, headers=HEADERS)
+    response = requests.get(url=URL_OPENAQ, headers=HEADERS, json=BODY)
 
-    sensors_dict = {}  
     sensors_list = []
-    for data in response.json()['results']:
-        pm10, pm25, no2 = -1, -1, -1
-        local_date = data['date']['local']
-
-        if data['parameter'] == 'pm10':
-            pm10 = data['value']
-        elif data['parameter'] == 'pm25':
-            pm25 = data['value']
-        elif data['parameter'] == 'no2':
-            no2 = data['value']
-        if datetime.fromisoformat(local_date).hour in [8, 12, 16]:
-            if local_date in sensors_dict:
-                sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
-                sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
-                sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
-            else:
-                sensors_dict[local_date] = {
-                    'pm10': pm10,
-                    'pm25': pm25,
-                    'no2': no2
-                }
-                
-    for local_date, values in sensors_dict.items():
+    for data in response.json():
         sensors_list.append({
-            'sensor_id': sensor_id,
-            'local_date': local_date,
-            'time': datetime.fromisoformat(local_date).hour,
-            'pm10': values['pm10'],
-            'pm25': values['pm25'],
-            'no2': values['no2']
+            'sensor_id': data['id'],
+            'local_date': data['time'],
+            'lat': data['lat'],
+            'lon': data['lon'],
+            'no2': data.get('no2', None),
+            'o3': data.get('o3', None),
+            'pm10': data.get('pm10', None),
+            'pm25': data.get('pm25', None),
+            'so2': data.get('so2', None)
         })
 
-    sensors_df = pd.DataFrame(sensors_list).set_index('time')
+    sensors_df = pd.DataFrame(sensors_list)
     sensors_df = sensors_df.sort_values(by='local_date')
     with open(DATA_DIR+'/openAQ_data.csv', 'a') as f:
         sensors_df.to_csv(f, header=f.tell()==0)
