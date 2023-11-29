@@ -16,31 +16,21 @@ target_data = pd.read_csv(target_data_path)
 
 merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
 merged_data = merged_data.dropna()
+merged_data.drop("Unnamed: 0_x", axis=1   , inplace=True)
+merged_data.drop("Unnamed: 0_y", axis=1   , inplace=True)
 merged_data.to_csv(merged_data_path, index=False)
 merged_data.drop("local_date", axis=1, inplace=True)
 
 
 best_combinations = {
     "pm10": ["pm25_x", "pm25_y", "pm10_y", "no2_x", "no2_y", "so2_x", "so2_y", "co"],
-    "pm25": ["pm10_x", "pm10_y", "pm25_y", "Unnamed: 0_x", "no2_x", "no2_y", "so2_y"],
+    "pm25": ["pm10_x", "pm10_y", "pm25_y", "no2_x", "no2_y", "so2_y"],
     "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y", "co"],
     "so2": ["no2_x", "no2_y", "co"],
     "co": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y"]
 }
 
 filename = ""
-
-print("=======training data=======")
-print(training_data.head())
-print(training_data.columns)
-
-print("=======target data=======")
-print(target_data.head())
-print(target_data.columns)
-
-print("=======merged data=======")
-print(merged_data.head())
-print(merged_data.columns)
 
 target_variable = input("enter the target variable (pm25, pm10, no2): ")
 
@@ -55,11 +45,6 @@ target_variable = target_variable + "_y"
 
 X = merged_data.drop(target_variable, axis=1)
 Y = merged_data[target_variable]
-
-print("=======X=======")
-print(X)
-print("=======Y=======")
-print(Y)
 
 
 X_train, X_test, Y_train, Y_test = train_test_split(
@@ -85,11 +70,6 @@ joblib.dump(model, os.path.join(saved_models_dir, filename))
 loaded_model = joblib.load(os.path.join(saved_models_dir, filename))
 predictions = loaded_model.predict(X_test)
 
-
-print("=======predictions=======")
-print(predictions)
-print("=======Y_test=======")
-print(Y_test)
 training_accuracy = model.score(X_train, Y_train)
 print("training_accuracy is: ", training_accuracy)
 print("test_accuracy is: ", model.score(X_test, Y_test))
