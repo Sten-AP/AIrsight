@@ -1,7 +1,6 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request
 from pandas import read_json, Timestamp
-from pandas.tseries.offsets import Hour
 from pydantic import BaseModel
 from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
@@ -15,7 +14,6 @@ load_dotenv()
 ## TIME FILTER FORMAT: 2023-11-15T12:00:00.000Z
 
 # -----------Constants-----------
-REACT_URLS = getenv("FASTAPI_REACT_URLS")
 INFLUXDB_URL = getenv("FASTAPI_INFLUXDB_URL")
 TOKEN = getenv("FASTAPI_TOKEN")
 ORG = getenv("FASTAPI_ORG")
@@ -32,7 +30,7 @@ read_api = read_client.query_api()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=REACT_URLS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
