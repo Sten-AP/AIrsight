@@ -19,3 +19,7 @@ Running the WEkEO script does the following:
 
 This script doesn't run amazingly fast, since we do an expensive API call that returns a lot of data, of which we use a set amount of datapoints to continue with.  
 It does, however, provide us with complete and valuable data to later use in any frontend applications. All in combination with the ground sensor data from OpenAQ.
+
+### Code repository
+
+To go back to the actual project where our script is located, click [here](../backend/WEkEO)
