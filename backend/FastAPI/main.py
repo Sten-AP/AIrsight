@@ -1,4 +1,4 @@
-from setup import write_client, read_api, ORG, PARAMETERS
+from setup import write_client, read_api, ORG, PARAMETERS, BUCKET, geo, BASE_DIR
 from classes import Data, Dates
 from functions import get_query, list_all_items
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from pandas import read_json
 from uvicorn import run
 from io import StringIO
+from pprint import pprint
+import json
 
 # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
 
@@ -47,15 +49,75 @@ async def post_new_data(param: str, data: Data):
 
     data_df = read_json(StringIO(data.data), orient="split").set_index('time')
     try:
-        if param == "openaqsensor":
-            write_client.write(data_df, data_frame_measurement_name=param,
+        if param == "openaq":
+            write_client.write(data_df, data_frame_measurement_name="openaqsensor",
                                data_frame_tag_columns=['country', 'country_code', 'id', 'region'])
-        if param == "wekeosensor":
+        if param == "wekeo":
             write_client.write(
-                data_df, data_frame_measurement_name=param, data_frame_tag_columns=['id'])
+                data_df, data_frame_measurement_name="wekeosensor", data_frame_tag_columns=['id'])
         return {"message": f"{param} data succesfully added to database"}
     except Exception as e:
         return {"message": f"error with adding {param} data to database: {e}"}
+
+
+@app.get("/api/locations/", tags=["Latest data"])
+async def get_data_by_param():
+    try:
+        query = f"""import "influxdata/influxdb/v1"
+                    v1.tagValues(
+                        bucket: "{BUCKET}",
+                        tag: "country_code",
+                        start: 0
+                    )"""
+        response = read_api.query(query, org=ORG)
+
+        country_codes = []
+        for table in response:
+            for record in table.records:
+                country_codes.append(record.values['_value'])
+
+        file = open(f"{BASE_DIR}/country_codes.json")
+        country_codes_file = json.load(file)
+        countries = []
+        for country_code in country_codes:
+            if country_code in country_codes_file:
+                countries.append(
+                    {country_codes_file[country_code]: country_code})
+        file.close()
+
+        query = f"""import "influxdata/influxdb/v1"
+                    v1.tagValues(
+                        bucket: "{BUCKET}",
+                        tag: "region",
+                        start: 0
+                    )"""
+        response = read_api.query(query, org=ORG)
+
+        records_regions = []
+        for table in response:
+            for record in table.records:
+                records_regions.append(record.values['_value'])
+
+        data = []
+        for country in countries:
+            for val in country.values():
+                country_code = val
+            for key in country.keys():
+                country_name = key
+                
+            country_data = {}
+            regions = []
+            for region in records_regions:
+                locations = geo.geocode(region, country_codes=country_codes, language="en").raw["display_name"]
+                locations = locations.split(", ")
+                if locations[-1] == country_name:
+                    regions.append(locations[0])
+                country_data.update({"code": country_code})
+                country_data.update({"regions": regions})
+            data.append({country_name: country_data} )
+        return data
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @app.get("/api/{param}/", tags=["Latest data"])
@@ -112,5 +174,7 @@ async def get_specific_data_by_param_and_id(param: str, id: str, data: str, date
     except Exception as e:
         return {"error": str(e)}
 
+
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=5000, reload=True,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
