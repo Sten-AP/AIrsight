@@ -28,4 +28,4 @@ The lead time is the time gap between when the model generates a forecast and th
 
 ## Script documentation
 
-For specific documentation on the script we use to obtain data from WEkEO, click [here]("documentation/WEkEO.md")
+For specific documentation on the script we use to obtain data from WEkEO, click [here]("../../documentation/WEkEO.md") or [here]("WEkEO.md")
