@@ -24,10 +24,10 @@ def get_address_by_location(latitude, longitude, language="en"):
 def main():
     session = Session()
     while True:
-        response = get(url=OPENAQ_URL, headers={"accept": "application/json"})
+        response = get(url=OPENAQ_URL, headers={"accept": "application/json"}).json()
         sensoren = []
         timestamp = Timestamp.now(tz='UCT').floor('ms')
-        for result in response.json()['results']:
+        for result in response['results']:
             address = get_address_by_location(
                 result['coordinates']['latitude'], result['coordinates']['longitude'])['address']
             
@@ -53,9 +53,8 @@ def main():
             sensoren.append(sensor)
             
         sensoren_json = DataFrame(sensoren).to_json(orient="split")
-        print(sensoren_json)
         try:
-            print(session.post(f"{API_URL}/openaqsensor/new/", json={"data": sensoren_json}).json())
+            print(session.post(f"{API_URL}/openaq/new/", json={"data": sensoren_json}).json())
         except Exception as e:
             print(f"Error posting data: {e}")
         sleep(1800)
