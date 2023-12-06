@@ -104,7 +104,7 @@ async def get_data_by_param():
                 country_code = val
             for key in country.keys():
                 country_name = key
-                
+
             country_data = {}
             regions = []
             for region in records_regions:
@@ -114,7 +114,7 @@ async def get_data_by_param():
                     regions.append(locations[0])
                 country_data.update({"code": country_code})
                 country_data.update({"regions": regions})
-            data.append({country_name: country_data} )
+            data.append({country_name: country_data})
         return data
     except Exception as e:
         return {"error": str(e)}
@@ -176,5 +176,4 @@ async def get_specific_data_by_param_and_id(param: str, id: str, data: str, date
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True,
-        proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
