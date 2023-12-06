@@ -1,47 +1,14 @@
-from setup import write_client, read_api, ORG, PARAMETERS, BUCKET, geo, BASE_DIR
+from setup import app, write_client, read_api, ORG, PARAMETERS, BUCKET, geo, BASE_DIR
 from classes import Data, Dates
 from functions import get_query, list_all_items
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
 from pandas import read_json
 from uvicorn import run
 from io import StringIO
-from pprint import pprint
 import json
 
 # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
 
-# -----------App-settings-----------
-app = FastAPI(
-    title="AIrsight",
-    summary="AIrsight API",
-    version="1.0.0",
-    openapi_tags=[
-        {
-            "name": "Add item",
-            "description": "Add new item to database. Data must be in body.",
-        },
-        {
-            "name": "Latest data",
-            "description": "Get latest data from all items.",
-        },
-        {
-            "name": "Specific data (with timestamps)",
-            "description": "Get data by param from specific item with or withouth timestamps. Timestamps must be in body.",
-        },
-    ]
-)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # -----------Routes-----------
-
-
 @app.post("/api/{param}/new/", tags=["Add item"])
 async def post_new_data(param: str, data: Data):
     if param not in PARAMETERS:
