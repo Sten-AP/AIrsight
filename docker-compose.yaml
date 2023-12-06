@@ -76,7 +76,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - ./grafana/img/:/grafana/public/img/icons/markers
+      - ./grafana/img/:/grafana/public/img/icons/marker
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
       - grafana-storage:/var/lib/grafana
 
