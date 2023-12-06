@@ -12,15 +12,15 @@ if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
 def process_sensor(sensor_id, type):
-    URL_OPENAQ = f"https://airsight.cloudsin.space/api/{type}/{sensor_id}"
+    URL = f"https://airsight.cloudsin.space/api/{type}/{sensor_id}/"
     HEADERS = {"accept": "application/json"}
     BODY = {
         "start_date": "2023-11-16T12:00:00.00",
         "stop_date": "2023-11-20T12:00:00.00"
     }
 
-    response = requests.get(url=URL_OPENAQ, headers=HEADERS, json=BODY)
-
+    response = requests.get(url=URL, headers=HEADERS, json=BODY)
+    print("response body: ", response.json())
     sensors_list = []
     for data in response.json():
         if type == "openaqsensor":
@@ -50,6 +50,7 @@ def process_sensor(sensor_id, type):
             })
 
     sensors_df = pd.DataFrame(sensors_list)
+    print(sensors_df)
     sensors_df = sensors_df.sort_values(by='local_date')
     if(type == "openaqsensor"):
         with open(DATA_DIR+'/openAQ_data.csv', 'a') as f:
@@ -65,5 +66,5 @@ def process_sensor(sensor_id, type):
 sensor_ids = [3036, 4463, 4861, 4926, 5698]
 
 for sensor_id in sensor_ids:
-    process_sensor(sensor_id, "openaqsensor")
-    process_sensor(sensor_id, "wekeosensor")
+    process_sensor(sensor_id, "openaq")
+    process_sensor(sensor_id, "wekeo")

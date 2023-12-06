@@ -23,16 +23,16 @@ merged_data.drop("local_date", axis=1, inplace=True)
 
 
 best_combinations = {
-    "pm10": ["pm25_x", "pm25_y", "pm10_y", "no2_x", "no2_y", "so2_x", "so2_y", "co"],
-    "pm25": ["pm10_x", "pm10_y", "pm25_y", "no2_x", "no2_y", "so2_y"],
+    "pm10": ["pm25_x", "pm10_x", "pm10_y", "no2_x", "so2_x", "co"],
+    "pm25": ["pm10_x", "pm10_y", "pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y"],
     "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y", "co"],
-    "so2": ["no2_x", "no2_y", "co"],
+    "so2": ["no2_x", "no2_y", "co", "pm25_x", "pm25_y", "so2_x", "so2_y"],
     "co": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2_y"]
 }
 
 filename = ""
 
-target_variable = input("enter the target variable (pm25, pm10, no2): ")
+target_variable = input("enter the target variable (pm25, pm10, no2, so2): ")
 
 if target_variable == "pm25":
     merged_data = merged_data[best_combinations["pm25"]]
@@ -40,6 +40,8 @@ elif target_variable == "pm10":
     merged_data = merged_data[best_combinations["pm10"]]
 elif target_variable == "no2":
     merged_data = merged_data[best_combinations["no2"]]
+elif target_variable == "so2":
+    merged_data = merged_data[best_combinations["so2"]]
 
 target_variable = target_variable + "_y"
 
@@ -64,6 +66,8 @@ elif target_variable == "pm10_y":
     filename = "linear_model_pm10.sav"
 elif target_variable == "no2_y":
     filename = "linear_model_no2.sav"
+elif target_variable == "so2_y":
+    filename = "linear_model_so2.sav"
 
 joblib.dump(model, os.path.join(saved_models_dir, filename))
 

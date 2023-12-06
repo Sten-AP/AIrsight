@@ -21,24 +21,19 @@ merged_data.to_csv(merged_data_path, index=False)
 best_combinations = {
     "pm10": [
         "pm25_x",
-        "pm25_y",
         "pm10_x",
         "pm10_y",
         "no2_x",
-        "no2_y",
         "so2",
         "co_conc",
         "nmvoc",
     ],
     "pm25": [
         "pm10_x",
-        "pm10_y",
         "pm25_x",
         "pm25_y",
         "time_x",
-        "time_y",
         "no2_x",
-        "no2_y",
         "so2",
         "nmvoc",
     ],
@@ -85,7 +80,7 @@ print(Y)
 
 
 X_train, X_test, Y_train, Y_test = train_test_split(
-    X, Y, test_size=0.3, random_state=42
+    X, Y, test_size=0.3
 )
 model = LinearRegression()
 model.fit(X_train, Y_train)

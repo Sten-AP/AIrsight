@@ -143,12 +143,10 @@ def read_nc_variables(DATA_DIR, variable_names, start_date):
     return pd.DataFrame(data_list)
     
 
-##left out variables ""o3_conc", "so2_conc", "co_conc"
 variable_names = ["pm10_conc", "pm2p5_conc", "no2_conc", "o3_conc", "so2_conc", "co_conc", "nmvoc_conc", "no_conc"]
 
 satellite_df = read_nc_variables(DATA_DIR, variable_names, start_date)
 satellite_df = satellite_df.rename(columns={"Time": "time", "pm10_conc": "pm10", "pm2p5_conc": "pm25", "no2_conc": "no2", "Local_date": "local_date", "nmvoc_conc": "nmvoc", "no_conc": "no", "o3_conc": "o3", "so2_conc": "so2"})
-#satellite_df[["pm10", "pm25", "no2"]] = satellite_df[["pm10", "pm25", "no2"]].apply(lambda x: round(x, 2))
 satellite_df["time"] = satellite_df["time"] % 24
 satellite_df["time"] = satellite_df["time"].astype(int)
 satellite_df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)

@@ -98,6 +98,6 @@ for pm10 and pm25 the training accuracies and test accuracies are on average in 
 
 (
 
-- single sensor test accuracy = avg. 94% (pm10, pm25)
+- single sensor test accuracy = avg. 80% (pm10, pm25)
 - multiple sensors test accuracy = avg. 96% (pm10, pm25)
   )
