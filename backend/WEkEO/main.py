@@ -27,7 +27,7 @@ if path.exists(DATA_DIR):
 
 def get_sensor_locations():
     try:
-        response = get(f"{API_URL}/openaqsensor/").json()
+        response = get(f"{API_URL}/openaq/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
@@ -91,7 +91,7 @@ def post_data(start_date):
                     
             print("sending data to database")
             wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-            print(Session().post(f"{API_URL}/wekeosensor/new/", json={"data": wekeo_json}).json())
+            print(Session().post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
 
 def main():
     sensor_locations = get_sensor_locations()
