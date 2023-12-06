@@ -76,7 +76,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - ./grafana/img/climatology.svg:/img/climatology.svg
+      - ./grafana/img/:/usr/share/grafana/public/img/custom-icons
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
       - grafana-storage:/var/lib/grafana
 
