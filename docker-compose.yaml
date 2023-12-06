@@ -52,6 +52,7 @@ services:
   openaq:
     container_name: openaq
     build: ./backend/OpenAQ
+    restart: always
     networks:
       - backnet
     environment:
