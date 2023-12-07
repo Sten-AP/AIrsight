@@ -11,8 +11,9 @@ load_dotenv()
 
 OPENAQ_URL = getenv("OPENAQ_INDIVIDUAL_URL")
 API_URL = getenv("OPENAQ_API_URL")
-SENSORS = ["4926", "4463", "3036", "4861", "3126"]
-DAYS = 1
+API_KEY = "41a9cf548dd0f797ac53ba6b56cfad74b380ecb5d81b6fe28dec557a62870b3b"
+SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+DAYS = 30
 
 
 def get_address_by_location(latitude, longitude, language="en"):
@@ -24,12 +25,16 @@ def get_address_by_location(latitude, longitude, language="en"):
     except:
         return get_address_by_location(latitude, longitude)
 
+
 def get_data(sensor_id):
-    start_date = (Timestamp.now(tz='UCT') - DateOffset(DAYS)).strftime('%Y-%m-%d')
+    start_date = (Timestamp.now(tz='UCT') -
+                  DateOffset(DAYS)).strftime('%Y-%m-%d')
     end_date = (Timestamp.now(tz='UCT') - DateOffset(0)).strftime('%Y-%m-%d')
     print(f"[>] {start_date} -> {end_date} [<] searching sensor: {sensor_id}")
 
-    response = get(url=OPENAQ_URL+f"?location_id={sensor_id}"+f"&date_from={start_date}" + f"&date_to={end_date}"+"&limit=1000", headers={"accept": "application/json"}).json()
+    response = get(url=OPENAQ_URL+f"?location_id={sensor_id}"+f"&date_from={start_date}" +
+                   f"&date_to={end_date}"+"&limit=1000", headers={"accept": "application/json", "X-API-Key": API_KEY}).json()
+
     sensoren = []
     for result in response['results']:
         address = get_address_by_location(
@@ -41,19 +46,17 @@ def get_data(sensor_id):
             state = address["region"]
 
         sensor = {
-                'id': result['locationId'],
-                'region': state,
-                'country': address["country"],
-                'country_code': address["country_code"].upper(),
-                'lat': result['coordinates']['latitude'],
-                'lon': result['coordinates']['longitude'],
-                'time': result['date']['local']
-            }
-
-        sensor.update({result["parameter"]: result["value"]})
+            'id': result['locationId'],
+            'region': state,
+            'country': address["country"],
+            'country_code': address["country_code"].upper(),
+            'lat': result['coordinates']['latitude'],
+            'lon': result['coordinates']['longitude'],
+            'time': result['date']['local'],
+            result["parameter"]: result["value"]
+        }
 
         sensoren.append(sensor)
-
 
     sensoren_json = DataFrame(sensoren).to_json(orient="split")
     try:
@@ -64,11 +67,13 @@ def get_data(sensor_id):
 
 def main():
     for sensor_id in SENSORS:
+        # get_data(sensor_id)
         threading.Thread(target=get_data, args=(sensor_id,)).start()
-        sleep(1)
         active_threads = threading.active_count()
+        sleep(2)
         print(f"Threads active: {active_threads-1}")
-        
+
+
 if __name__ == "__main__":
     geo = Nominatim(user_agent="airsight")
     session = Session()

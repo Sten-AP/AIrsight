@@ -19,7 +19,8 @@ API_URL = getenv("WEKEO_API_URL")
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
-DAYS = 1
+SENSORS = ["4926", "72334"]
+DAYS = 30
 
 
 if path.exists(DATA_DIR):
@@ -33,7 +34,7 @@ def get_sensor_locations():
         
     locations = []
     for sensor in response:
-        if sensor['id'] in ["4926", "4463", "3036", "4861", "3126"]:
+        if sensor['id'] in SENSORS:
             locations.append({'id': sensor['id'], 'lon': sensor['lon'], 'lat': sensor['lat']})              
     return locations
 
