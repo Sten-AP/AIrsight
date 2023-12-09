@@ -7,7 +7,7 @@ WORKDIR /OpenAQ/
 COPY ./requirements.txt /OpenAQ/requirements.txt
 
 # install the dependencies and packages in the requirements file
-RUN pip install -r /OpenAQ/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /fastapi/requirements.txt
 
 # copy every content from the local file to the image
 COPY . /OpenAQ/
