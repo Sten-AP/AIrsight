@@ -7,7 +7,7 @@ WORKDIR /FastAPI/
 COPY ./requirements.txt /FastAPI/requirements.txt
 
 # install the dependencies and packages in the requirements file
-RUN pip install --no-cache-dir --upgrade -r /fastapi/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /FastAPI/requirements.txt
 
 # copy every content from the local file to the image
 COPY . /FastAPI/
