@@ -67,7 +67,7 @@ def get_query(param, id=None, data=None, start_date=None, stop_date=None):
     if data != None:
         data_filter = f"""|> filter(fn: (r) => r["_field"] == "{data}")"""
 
-    time_filter = f"""|> range(start: 0)"""
+    time_filter = f"""|> range(start: 0) |> last()"""
     if start_date != None and stop_date != None:
         time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
 
