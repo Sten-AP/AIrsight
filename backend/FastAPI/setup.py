@@ -15,7 +15,7 @@ TOKEN = getenv("FASTAPI_TOKEN")
 ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
 BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
-PARAMETERS = ["wekeo", "openaq", "prediction"]
+PARAMETERS = ["openaq", "wekeo", "prediction"]
 BASE_DIR = path.dirname(__file__)
 
 # -----------InfluxDB-settings-----------

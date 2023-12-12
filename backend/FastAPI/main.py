@@ -5,12 +5,25 @@ from pandas import read_json
 from uvicorn import run
 from io import StringIO
 import json
+from fastapi import FastAPI, Query, Path, Depends
+from enum import Enum
+from pydantic.dataclasses import dataclass
+from typing import Optional, List
 
 # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
 
+params = ""
+for i, param in enumerate(PARAMETERS):
+    params += param
+    if i != len(PARAMETERS)-1:
+        params += ", "
+        
+enum = Enum("enum", {str(i):i for i in PARAMETERS})
+
 # -----------Routes-----------
-@app.post("/api/{param}/new/", tags=["Add item"])
-async def post_new_data(param: str, data: Data):
+@app.post("/api/{param}/new/", tags=["Add item"], summary="Add new data to database")
+async def add_new_data(data: Data, param: enum):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -27,8 +40,8 @@ async def post_new_data(param: str, data: Data):
         return {"message": f"error with adding {param} data to database: {e}"}
 
 
-@app.get("/api/locations/", tags=["Latest data"])
-async def get_data_by_param():
+@app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
+async def locations():
     try:
         query = f"""import "influxdata/influxdb/v1"
                     v1.tagValues(
@@ -87,8 +100,9 @@ async def get_data_by_param():
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/", tags=["Latest data"])
-async def get_data_by_param(param: str):
+@app.get("/api/{param}/", tags=["Latest data"], summary="Get all latest data from all items from used parameter")
+async def data_by_param(param: enum):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -100,8 +114,9 @@ async def get_data_by_param(param: str):
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"])
-async def get_all_data_by_param_and_id(param: str, id: str, dates: Dates = None):
+@app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"], summary="Get data from used parameter, filtered by id")
+async def all_data_by_param_and_id(param: enum, id: str, dates: Dates = None):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -121,8 +136,9 @@ async def get_all_data_by_param_and_id(param: str, id: str, dates: Dates = None)
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"])
-async def get_specific_data_by_param_and_id(param: str, id: str, data: str, dates: Dates = None):
+@app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"], summary="Get specific data from used parameter, filtered by id")
+async def specific_data_by_param_and_id(param: enum, id: str, data: str, dates: Dates = None):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
