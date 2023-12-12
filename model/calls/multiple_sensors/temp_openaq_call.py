@@ -29,21 +29,20 @@ def fetch_sensor_data(sensor_id):
             pm25 = data['value']
         elif data['parameter'] == 'no2':
             no2 = data['value']
-        if datetime.fromisoformat(local_date).hour == 8 or datetime.fromisoformat(local_date).hour == 16 or datetime.fromisoformat(local_date).hour == 12:
-            if local_date in sensors_dict:
-                sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
-                sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
-                sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
-                sensors_dict[local_date]['latitude'] = data['coordinates']['latitude']
-                sensors_dict[local_date]['longitude'] = data['coordinates']['longitude']
-            else:
-                sensors_dict[local_date] = {
-                    'pm10': pm10,
-                    'pm25': pm25,
-                    'no2': no2,
-                    'latitude': data['coordinates']['latitude'],
-                    'longitude': data['coordinates']['longitude']
-                }
+        if local_date in sensors_dict:
+            sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
+            sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
+            sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
+            sensors_dict[local_date]['latitude'] = data['coordinates']['latitude']
+            sensors_dict[local_date]['longitude'] = data['coordinates']['longitude']
+        else:
+            sensors_dict[local_date] = {
+                'pm10': pm10,
+                'pm25': pm25,
+                'no2': no2,
+                'latitude': data['coordinates']['latitude'],
+                'longitude': data['coordinates']['longitude']
+            }
                 
     for local_date, values in sensors_dict.items():
         local_date_converted = datetime.fromisoformat(local_date)
@@ -63,9 +62,12 @@ def fetch_sensor_data(sensor_id):
     sensors_df = pd.DataFrame(sensors_list).set_index('time')
     sensors_df = sensors_df.sort_values(by='local_date')
 
-    if os.path.exists(DATA_DIR+'/openAQ_data.csv'):
+    # Check if file exists and is empty
+    if os.path.exists(DATA_DIR+'/openAQ_data.csv') and os.path.getsize(DATA_DIR+'/openAQ_data.csv') > 0:
+        # If file exists and is not empty, append without writing headers
         sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv', mode='a', header=False)
     else:
+        # If file doesn't exist or is empty, write with headers
         sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv')
 
 sensor_ids = [3036, 4463, 4861, 4926]

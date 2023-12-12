@@ -15,20 +15,27 @@ target_data_path = os.path.join(datasets_dir, "openAQ_data.csv")
 training_data = pd.read_csv(training_data_path)
 target_data = pd.read_csv(target_data_path)
 
-merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
+# Convert 'local_date' to datetime format in both datasets
+training_data['local_date'] = pd.to_datetime(training_data['local_date'])
+target_data['local_date'] = pd.to_datetime(target_data['local_date'])
 
-# Drop unnecessary columns
-merged_data.drop(["Unnamed: 0_x", "Unnamed: 0_y", "local_date"], axis=1, inplace=True)
+# Convert 'sensor_id' to integer format in both datasets
+training_data['sensor_id'] = training_data['sensor_id'].astype(int)
+target_data['sensor_id'] = target_data['sensor_id'].astype(int)
+# Merge the datasets based on 'local_date' and 'sensor_id'
+merged_data = pd.merge(training_data, target_data, left_on=['local_date', 'sensor_id'], right_on=['local_date', 'sensor_id'], how='inner')
+merged_data = merged_data.sort_values(by=["sensor_id", "local_date"])
+merged_data_path = os.path.join(datasets_dir, "merged_data.csv")
+merged_data.to_csv(merged_data_path, index=False)
 
-# Handle missing values
+
+
+merged_data.drop(["local_date"], axis=1, inplace=True)
 merged_data = merged_data.dropna()
 
 target_variable = "pm10"
 
-# Perform feature selection
-# Here, I'm assuming that "pm25_x" and "pm10_x" are the most relevant features for predicting "pm10_y"
-# You should replace these with the actual most relevant features based on your domain knowledge
-X = merged_data[["pm25_x", "pm10_x"]]
+X = merged_data[["pm25_x", "pm10_x", "sensor_id", "no2_x", "o3", "so2", "co_conc", "nmvoc", "no"]]
 Y = merged_data[target_variable + "_y"]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
