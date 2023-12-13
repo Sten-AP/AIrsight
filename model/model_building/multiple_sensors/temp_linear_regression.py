@@ -35,7 +35,7 @@ merged_data = merged_data.dropna()
 
 target_variable = "pm10"
 
-X = merged_data[["pm25_x", "pm10_x", "sensor_id", "no2_x", "o3", "so2", "co_conc", "nmvoc", "no"]]
+X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "co_conc", "time_x"]]
 Y = merged_data[target_variable + "_y"]
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)

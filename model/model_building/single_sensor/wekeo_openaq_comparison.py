@@ -2,9 +2,9 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error
 import os
 
-datasets_dir = os.path.dirname("model\calls\datasets")
+datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "calls", "single_sensor", "datasets")
 
-merged_data = pd.read_csv("model/calls/datasets/merged_data.csv")
+merged_data = pd.read_csv(os.path.join(datasets_dir, "merged_data.csv"), index_col=0)
 
 if 'pm25_x' in merged_data.columns and 'pm25_y' in merged_data.columns:
     baseline_mae = mean_absolute_error(merged_data['pm25_x'], merged_data['pm25_y'])

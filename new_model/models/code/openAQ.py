@@ -1,22 +1,16 @@
+# this file is used to make api-calls to openAQ and store the data in a csv file  under datasets/openAQ_data.csv
 import requests
 import pandas as pd
 import os
 from datetime import datetime, timedelta
 
-URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-31T08%3A00%3A00-16%3A00&page=1&offset=0&limit=100000&sort=desc&radius=1000&country=BE&location_id={}&order_by=datetime"
-
+URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-02T01%3A00%3A00-16%3A00&date_to=2023-10-4T08%3A00%3A00-16%3A00&page=1&offset=0&limit=100000&sort=desc&radius=1000&country=BE&location_id={}&order_by=datetime"
 HEADERS = {"accept": "application/json"}
-
-NOW = pd.Timestamp.now(tz='UCT').floor('ms')
-BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = BASE_DIR+"/datasets"
+DATASET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "datasets", "multiple_sensors")
 NOW = pd.Timestamp.now(tz='UCT').strftime('%Y-%m-%d')
 
 def fetch_sensor_data(sensor_id):
     response = requests.get(url=URL_OPENAQ.format(sensor_id), headers=HEADERS)
-    if not os.path.exists(DATA_DIR):
-        os.mkdir(DATA_DIR)
-
     sensors_dict = {}  
     sensors_list = []
     for data in response.json()['results']:
@@ -58,18 +52,5 @@ def fetch_sensor_data(sensor_id):
             'latitude': values['latitude'],
             'longitude': values['longitude']
         })
-
     sensors_df = pd.DataFrame(sensors_list).set_index('time')
-    sensors_df = sensors_df.sort_values(by='local_date')
-
-    # Check if file exists and is empty
-    if os.path.exists(DATA_DIR+'/openAQ_data.csv') and os.path.getsize(DATA_DIR+'/openAQ_data.csv') > 0:
-        # If file exists and is not empty, append without writing headers
-        sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv', mode='a', header=False)
-    else:
-        # If file doesn't exist or is empty, write with headers
-        sensors_df.to_csv(DATA_DIR+'/openAQ_data.csv')
-
-sensor_ids = [3036, 4463, 4861, 4926, 4878]
-for sensor_id in sensor_ids:
-    fetch_sensor_data(sensor_id)
+    sensors_df.to_csv(os.path.join(DATASET_DIR, "openAQ_data.csv"), index=False)

@@ -16,6 +16,7 @@ target_data = pd.read_csv(target_data_path)
 
 merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
 merged_data = merged_data.dropna()
+merged_data.to_csv(merged_data_path, index=False)
 merged_data.drop("Unnamed: 0_x", axis=1   , inplace=True)
 merged_data.drop("Unnamed: 0_y", axis=1   , inplace=True)
 merged_data.to_csv(merged_data_path, index=False)

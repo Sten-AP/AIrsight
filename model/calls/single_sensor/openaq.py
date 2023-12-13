@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import time
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 URL_OPENAQ = "https://api.openaq.org/v2/measurements?format=json&date_from=2023-10-01T01%3A00%3A00-16%3A00&date_to=2023-10-31T08%3A00%3A00-16%3A00&page=1&offset=0&limit=100000&sort=desc&radius=1000&country=BE&location_id=4878&order_by=datetime"
@@ -31,22 +31,24 @@ for data in response.json()['results']:
         pm25 = data['value']
     elif data['parameter'] == 'no2':
         no2 = data['value']
-    if datetime.fromisoformat(local_date).hour == 8 or datetime.fromisoformat(local_date).hour == 16 or datetime.fromisoformat(local_date).hour == 12:
-        if local_date in sensors_dict:
-            sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
-            sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
-            sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
-        else:
-            sensors_dict[local_date] = {
-                'pm10': pm10,
-                'pm25': pm25,
-                'no2': no2
-            }
-            
+    if local_date in sensors_dict:
+        sensors_dict[local_date]['pm10'] = max(sensors_dict[local_date]['pm10'], pm10)
+        sensors_dict[local_date]['pm25'] = max(sensors_dict[local_date]['pm25'], pm25)
+        sensors_dict[local_date]['no2'] = max(sensors_dict[local_date]['no2'], no2)
+    else:
+        sensors_dict[local_date] = {
+            'pm10': pm10,
+            'pm25': pm25,
+            'no2': no2
+        }
+        
 for local_date, values in sensors_dict.items():
+    local_date_converted = datetime.fromisoformat(local_date)
+    offset_hours = local_date_converted.utcoffset().total_seconds() / 3600
+    local_date_converted = local_date_converted + timedelta(hours=offset_hours)
     sensors_list.append({
-        'local_date': local_date,
-        'time': datetime.fromisoformat(local_date).hour,
+        'time': local_date_converted.hour,
+        'local_date': local_date_converted.replace(tzinfo=None).isoformat(),
         'pm10': values['pm10'],
         'pm25': values['pm25'],
         'no2': values['no2']

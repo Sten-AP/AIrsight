@@ -14,35 +14,25 @@ merged_data_path = os.path.join(datasets_dir, "merged_data.csv")
 training_data = pd.read_csv(training_data_path)
 target_data = pd.read_csv(target_data_path)
 
-merged_data = pd.merge(training_data, target_data, on="local_date", how="inner")
-merged_data.drop("local_date", axis=1, inplace=True)
+merged_data = pd.merge(training_data, target_data, left_on=['local_date', 'time'], right_on=['local_date', 'time'], how='inner')
 merged_data.to_csv(merged_data_path, index=False)
-
+merged_data = merged_data.drop(["local_date"], axis=1)
 best_combinations = {
     "pm10": [
         "pm25_x",
         "pm10_x",
         "pm10_y",
+        "time",
         "no2_x",
-        "so2",
-        "co_conc",
-        "nmvoc",
     ],
     "pm25": [
         "pm10_x",
         "pm25_x",
         "pm25_y",
-        "time_x",
-        "no2_x",
-        "so2",
-        "nmvoc",
+        "time",
+        "no2_x"
     ],
-    "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "nmvoc", "co_conc"],
-    "o3": ["time"],
-    "so2": ["no2_x", "no2_y", "co_conc", "nmvoc", "no"],
-    "co": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "nmvoc", "no"],
-    "nmvoc": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "co_conc", "no"],
-    "no": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "co_conc", "nmvoc"],
+    "no2": ["pm25_x", "pm25_y", "no2_x", "no2_y", "so2", "time_x", "nmvoc", "co_conc"],
 }
 
 filename = ""
