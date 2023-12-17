@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 def wekeo_api_call(start_date, end_date, lat, lon):
     ##Setup
-    DATASET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "datasets", "multiple_sensors")
+    DATASET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "datasets")
     DATA_DIR = os.path.join(DATASET_DIR, "temp_wekeo_data")
 
     load_dotenv()
