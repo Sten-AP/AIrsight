@@ -5,7 +5,7 @@ from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-
+from enum import Enum
 
 load_dotenv()
 
@@ -16,7 +16,9 @@ ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
 BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
 PARAMETERS = ["openaq", "wekeo", "prediction"]
+PARAMETERS_ENUM = Enum("enum", {str(i): i for i in PARAMETERS})
 BASE_DIR = path.dirname(__file__)
+
 
 # -----------InfluxDB-settings-----------
 read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
@@ -45,6 +47,7 @@ app = FastAPI(
         },
     ]
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
