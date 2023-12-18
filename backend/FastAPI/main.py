@@ -149,5 +149,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, reload=True,
+    run("main:app", host="0.0.0.0", port=6000, reload=True,
         proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
