@@ -86,7 +86,6 @@ async def locations():
             regions = []
             for region in records_regions:
                 locations = geo.geocode(region, country_codes=country_codes, language="en", timeout=10).raw["display_name"]
-                print(locations)
                 locations = locations.split(", ")
                 if locations[-1] == country_name:
                     regions.append(locations[0])
