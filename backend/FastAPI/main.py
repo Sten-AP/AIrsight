@@ -159,4 +159,4 @@ async def specific_data_by_param_and_id(param: enum, id: str, data: str, dates: 
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
