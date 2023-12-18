@@ -5,10 +5,7 @@ from pandas import read_json
 from uvicorn import run
 from io import StringIO
 import json
-from fastapi import FastAPI, Query, Path, Depends
 from enum import Enum
-from pydantic.dataclasses import dataclass
-from typing import Optional, List
 
 # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
 
@@ -43,11 +40,11 @@ async def add_new_data(data: Data, param: enum):
 @app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
 async def locations():
     try:
-        query = f"""import "influxdata/influxdb/v1"
-                    v1.tagValues(
+        query = f"""import "influxdata/influxdb/schema"
+                    schema.tagValues(
                         bucket: "{BUCKET}",
                         tag: "country_code",
-                        start: 0
+                        start: 0,
                     )"""
         response = read_api.query(query, org=ORG)
 
@@ -65,8 +62,8 @@ async def locations():
                     {country_codes_file[country_code]: country_code})
         file.close()
 
-        query = f"""import "influxdata/influxdb/v1"
-                    v1.tagValues(
+        query = f"""import "influxdata/influxdb/schema"
+                    schema.tagValues(
                         bucket: "{BUCKET}",
                         tag: "region",
                         start: 0
@@ -89,6 +86,7 @@ async def locations():
             regions = []
             for region in records_regions:
                 locations = geo.geocode(region, country_codes=country_codes, language="en").raw["display_name"]
+                print(locations)
                 locations = locations.split(", ")
                 if locations[-1] == country_name:
                     regions.append(locations[0])
