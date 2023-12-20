@@ -15,7 +15,7 @@ def get_address_by_location(latitude, longitude, language="en"):
     will repeat until success"""
     coordinates = f"{latitude}, {longitude}"
     try:
-        return geo.reverse(coordinates, language=language).raw
+        return geo.reverse(coordinates, language=language, timeout=10).raw
     except:
         return get_address_by_location(latitude, longitude)
 

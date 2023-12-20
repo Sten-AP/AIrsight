@@ -1,4 +1,4 @@
-from setup import app, write_client, read_api, ORG, PARAMETERS, BUCKET, geo, BASE_DIR
+from setup import app, write_client, read_api, geo, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates
 from functions import get_query, list_all_items
@@ -8,11 +8,10 @@ from io import StringIO
 import json
 
 
-# TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
-
 # -----------Routes-----------
-@app.post("/api/{param}/new/", tags=["Add item"])
-async def post_new_data(param: str, data: Data):
+@app.post("/api/{param}/new/", tags=["Add item"], summary="Add new data to database")
+async def add_new_data(data: Data, param: PARAMETERS_ENUM):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -29,14 +28,14 @@ async def post_new_data(param: str, data: Data):
         return {"message": f"error with adding {param} data to database: {e}"}
 
 
-@app.get("/api/locations/", tags=["Latest data"])
-async def get_data_by_param():
+@app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
+async def locations():
     try:
-        query = f"""import "influxdata/influxdb/v1"
-                    v1.tagValues(
+        query = f"""import "influxdata/influxdb/schema"
+                    schema.tagValues(
                         bucket: "{BUCKET}",
                         tag: "country_code",
-                        start: 0
+                        start: 0,
                     )"""
         response = read_api.query(query, org=ORG)
 
@@ -54,8 +53,8 @@ async def get_data_by_param():
                     {country_codes_file[country_code]: country_code})
         file.close()
 
-        query = f"""import "influxdata/influxdb/v1"
-                    v1.tagValues(
+        query = f"""import "influxdata/influxdb/schema"
+                    schema.tagValues(
                         bucket: "{BUCKET}",
                         tag: "region",
                         start: 0
@@ -69,28 +68,31 @@ async def get_data_by_param():
 
         data = []
         for country in countries:
-            for val in country.values():
-                country_code = val
-            for key in country.keys():
-                country_name = key
-
             country_data = {}
+            
+            country_code = list(country.values())[0]
+            country_name = list(country.keys())[0]
+            country_data.update({"country": country_name})
+            
             regions = []
             for region in records_regions:
-                locations = geo.geocode(region, country_codes=country_codes, language="en").raw["display_name"]
+                locations = geo.geocode(
+                    region, country_codes=country_codes, language="en", timeout=10).raw["display_name"]
                 locations = locations.split(", ")
                 if locations[-1] == country_name:
                     regions.append(locations[0])
                 country_data.update({"code": country_code})
                 country_data.update({"regions": regions})
+
             data.append({country_name: country_data})
         return ORJSONResponse(data, status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/", tags=["Latest data"])
-async def get_data_by_param(param: str):
+@app.get("/api/{param}/", tags=["Latest data"], summary="Get all latest data from all items from used parameter")
+async def data_by_param(param: PARAMETERS_ENUM):
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -102,8 +104,10 @@ async def get_data_by_param(param: str):
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"])
-async def get_all_data_by_param_and_id(param: str, id: str, dates: Dates = None):
+@app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"], summary="Get data from used parameter, filtered by id")
+async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, dates: Dates = None):
+    # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -123,8 +127,10 @@ async def get_all_data_by_param_and_id(param: str, id: str, dates: Dates = None)
         return {"error": str(e)}
 
 
-@app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"])
-async def get_specific_data_by_param_and_id(param: str, id: str, data: str, dates: Dates = None):
+@app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"], summary="Get specific data from used parameter, filtered by id")
+async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, dates: Dates = None):
+    # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
+    param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
@@ -145,4 +151,4 @@ async def get_specific_data_by_param_and_id(param: str, id: str, data: str, date
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
