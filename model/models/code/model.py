@@ -11,6 +11,7 @@ import numpy as np
 def merge_and_train():
     scaler = MinMaxScaler()
     datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "datasets",)
+    model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "saved_models",)
     training_data_path = os.path.join(datasets_dir, "wekeo_data.csv")
     target_data_path = os.path.join(datasets_dir, "openAQ_data.csv")
 
@@ -63,3 +64,9 @@ def merge_and_train():
     print("test_r2_score is: ", model.score(X_test, Y_test))
     print("mean_squared_error : ", mean_squared_error(Y_test, predictions))
     print("mean_absolute_error : ", mean_absolute_error(Y_test, predictions))
+
+    save = input("Do you want to save the model? (yes/no): ")
+    if save.lower() == "yes":
+        model_path = os.path.join(model_dir, f"linear_regression_{target_variable}.joblib")
+        joblib.dump(model, model_path)
+        print(f"Model saved as linear_regression_{target_variable}")
