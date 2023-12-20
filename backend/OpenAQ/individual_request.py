@@ -13,7 +13,7 @@ OPENAQ_URL = getenv("OPENAQ_INDIVIDUAL_URL")
 API_URL = getenv("OPENAQ_API_URL")
 API_KEY = "41a9cf548dd0f797ac53ba6b56cfad74b380ecb5d81b6fe28dec557a62870b3b"
 SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
-DAYS = 30
+DAYS = 1
 
 
 def get_address_by_location(latitude, longitude, language="en"):
@@ -75,6 +75,6 @@ def main():
 
 
 if __name__ == "__main__":
-    geo = Nominatim(user_agent="airsight")
+    geo = Nominatim(timeout=10, user_agent="sensors")
     session = Session()
     main()
