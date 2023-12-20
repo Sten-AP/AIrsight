@@ -16,34 +16,41 @@ print("2. Build a model based on multiple sensors")
 choice = int(input("Please enter your choice: "))
 validChoice = False
 
+# check if dataset exists
+
+def check_if_dataset_exists(dataset_dir, filename):
+    file_path = os.path.join(dataset_dir, filename)
+    if os.path.isfile(file_path):
+        overwrite = input(f"We already found a dataset named {filename}. Do you want to overwrite it with a new call? (yes/no): ")
+        if overwrite.lower() == "yes":
+            return True
+    return False
+
 
 while not validChoice:
     if (choice ==1): 
         print("Please enter the sensor id of the sensor you want to build a model for: ")
         sensor_id = input()
-        if os.path.isfile(os.path.join(DATASET_DIR, f"{sensor_id}_openAQ_data.csv")):
-            overwrite = input("We already found an OpenAQ CSV. Do you want to overwrite it with a new call? (yes/no): ")
-            if overwrite.lower() == "yes":
-                lat, lon = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04" )
-                print("finished fetching data for sensor: ", sensor_id)
-        if os.path.isfile(os.path.join(DATASET_DIR, f"{sensor_id}_wekeo_data.csv")):
-            overwrite = input("We already found a Wekeo CSV. Do you want to overwrite it with a new call? (yes/no): ")
-            if overwrite.lower() == "yes":
-                wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon)
+        if check_if_dataset_exists(DATASET_DIR, "openAQ_data.csv"):
+            lat, lon = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04" )
+            print("finished fetching data for sensor: ", sensor_id)
+        if check_if_dataset_exists(DATASET_DIR, "wekeo_data.csv"):
+            wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon)
         merge_and_train()
         validChoice = True
     elif (choice ==2): 
         print("You've chosen multiple sensors, building a model with 5 sensors in belgium...")
         sensor_ids = [4878] #TO-DO: get 5 sensors in belgium
         for sensor_id in sensor_ids:
-            lat, lon = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04" )
-            print("finished fetching data for sensor: ", sensor_id)
-            wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon)
+            if check_if_dataset_exists(DATASET_DIR, "openAQ_data.csv"):
+                lat, lon = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04" )
+                print("finished fetching data for sensor: ", sensor_id)
+            if check_if_dataset_exists(DATASET_DIR, "wekeo_data.csv"):
+                wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon)
             merge_and_train()
         validChoice = True
     else: 
         print("Please enter a valid choice")
         choice = input("Please enter your choice: ")
-
 
 
