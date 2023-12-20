@@ -1,10 +1,12 @@
 from setup import app, write_client, read_api, ORG, PARAMETERS, BUCKET, geo, BASE_DIR
+from fastapi.responses import ORJSONResponse
 from classes import Data, Dates
 from functions import get_query, list_all_items
 from pandas import read_json
 from uvicorn import run
 from io import StringIO
 import json
+
 
 # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00.00
 
@@ -82,7 +84,7 @@ async def get_data_by_param():
                 country_data.update({"code": country_code})
                 country_data.update({"regions": regions})
             data.append({country_name: country_data})
-        return data
+        return ORJSONResponse(data, status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
@@ -95,7 +97,7 @@ async def get_data_by_param(param: str):
     try:
         query = get_query(param)
         response = read_api.query(query, org=ORG)
-        return list_all_items(response)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
@@ -116,7 +118,7 @@ async def get_all_data_by_param_and_id(param: str, id: str, dates: Dates = None)
         query = get_query(param=param, id=id,
                           start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
-        return list_all_items(response, start_date, stop_date)
+        return ORJSONResponse(list_all_items(response, start_date, stop_date), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
@@ -137,10 +139,10 @@ async def get_specific_data_by_param_and_id(param: str, id: str, data: str, date
         query = get_query(param=param, id=id, data=data,
                           start_date=start_date, stop_date=stop_date)
         response = read_api.query(query, org=ORG)
-        return list_all_items(response, start_date, stop_date)
+        return ORJSONResponse(list_all_items(response, start_date, stop_date), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, reload=True, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)

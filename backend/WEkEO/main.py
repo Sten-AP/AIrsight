@@ -19,7 +19,8 @@ API_URL = getenv("WEKEO_API_URL")
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
-DAYS = 7
+SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+DAYS = 3
 
 
 if path.exists(DATA_DIR):
@@ -27,13 +28,13 @@ if path.exists(DATA_DIR):
 
 def get_sensor_locations():
     try:
-        response = get(f"{API_URL}/openaqsensor/").json()
+        response = get(f"{API_URL}/openaq/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
     locations = []
     for sensor in response:
-        if sensor['id'] in ["4926", "4463", "3036", "4861", "5698"]:
+        if sensor['id'] in SENSORS:
             locations.append({'id': sensor['id'], 'lon': sensor['lon'], 'lat': sensor['lat']})              
     return locations
 
@@ -91,7 +92,7 @@ def post_data(start_date):
                     
             print("sending data to database")
             wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-            print(Session().post(f"{API_URL}/wekeosensor/new/", json={"data": wekeo_json}).json())
+            print(Session().post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
 
 def main():
     sensor_locations = get_sensor_locations()
@@ -100,10 +101,9 @@ def main():
         worker.start()
         sleep(1)
         active_threads = threading.active_count()
-        print(f"Threads active: {active_threads}")
+        print(f"Threads active: {active_threads-1}")
 
     while True:
-        print(threading.active_count())
         if threading.active_count() == 2:
             break
         sleep(5)
@@ -113,5 +113,5 @@ def main():
 
 if __name__ == "__main__":
     config = Configuration(user=USERNAME, password=PASSWORD)
-    hda_client = Client(config=config, progress=True)
+    hda_client = Client(config=config, progress=True, max_workers=2)
     main()
