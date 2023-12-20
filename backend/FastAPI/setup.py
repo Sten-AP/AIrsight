@@ -4,8 +4,10 @@ from os import getenv, path
 from influxdb_client_3 import InfluxDBClient3
 from influxdb_client import InfluxDBClient
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi import FastAPI
 from enum import Enum
+
 
 load_dotenv()
 
@@ -54,4 +56,9 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+app.add_middleware(
+    GZipMiddleware,
+    minimum_size=1000,
 )

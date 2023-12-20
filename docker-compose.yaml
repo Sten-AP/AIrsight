@@ -52,6 +52,7 @@ services:
   openaq:
     container_name: openaq
     build: ./backend/OpenAQ
+    restart: always
     networks:
       - backnet
     environment:
@@ -75,6 +76,7 @@ services:
     ports:
       - "3002:3002"
     volumes:
+      - ./grafana/img/:/usr/share/grafana/public/img/icons/markers/
       - ./grafana/defaults.ini:/usr/share/grafana/conf/defaults.ini
       - grafana-storage:/var/lib/grafana
 
