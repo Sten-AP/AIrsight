@@ -23,9 +23,10 @@ def wekeo_api_call(start_date, end_date, lat, lon):
     hda_client = Client(config=config)
 
     query = query_settings(lat, lon, start_date, end_date)
-    matches= hda_client.search(query)
-    matches.download(DATA_DIR)
 
+    print("Query settings: ", query)
+    matches = hda_client.search(query)
+    print("Matches: ", matches)
     def read_nc_variables(DATA_DIR, variable_names, start_date):
         nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
         data_list = []  
