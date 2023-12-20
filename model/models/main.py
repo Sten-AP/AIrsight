@@ -17,7 +17,6 @@ choice = int(input("Please enter your choice: "))
 validChoice = False
 
 # check if dataset exists
-
 def check_if_dataset_exists(dataset_dir, filename):
     file_path = os.path.join(dataset_dir, filename)
     if os.path.isfile(file_path):
@@ -25,7 +24,6 @@ def check_if_dataset_exists(dataset_dir, filename):
         if overwrite.lower() == "yes":
             return True
     return False
-
 
 while not validChoice:
     if (choice ==1): 
