@@ -19,8 +19,8 @@ API_URL = getenv("WEKEO_API_URL")
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
-SENSORS = ["4926", "72334"]
-DAYS = 30
+SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+DAYS = 3
 
 
 if path.exists(DATA_DIR):
@@ -113,5 +113,5 @@ def main():
 
 if __name__ == "__main__":
     config = Configuration(user=USERNAME, password=PASSWORD)
-    hda_client = Client(config=config, progress=True)
+    hda_client = Client(config=config, progress=True, max_workers=2)
     main()
