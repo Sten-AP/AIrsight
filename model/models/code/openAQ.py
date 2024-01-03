@@ -65,4 +65,4 @@ def fetch_sensor_data(sensor_id, start_date, end_date):
     else:
         print("No data received from the API.")
         latitude, longitude = None, None
-    return latitude, longitude
+    return latitude, longitude, sensor_id

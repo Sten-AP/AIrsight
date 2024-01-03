@@ -22,7 +22,9 @@ def merge_and_train():
     target_data['local_date'] = pd.to_datetime(target_data['local_date'])
     training_data['sensor_id'] = training_data['sensor_id'].astype(int)
     target_data['sensor_id'] = target_data['sensor_id'].astype(int)
-
+    #timezone differences
+    training_data['local_date'] = training_data['local_date'].dt.tz_convert('UTC')
+    target_data['local_date'] = target_data['local_date'].dt.tz_localize('UTC')
     #merging the two datasets
     merged_data = pd.merge(training_data, target_data, left_on=['local_date', 'sensor_id'], right_on=['local_date', 'sensor_id'], how='inner')
     merged_data = merged_data.sort_values(by=["sensor_id", "local_date"])
@@ -49,9 +51,9 @@ def merge_and_train():
         print("Please enter a valid target variable")
         target_variable = input("Please enter the target variable you want to predict (pm10, pm25, no2): ")
     if (target_variable == "pm10"):
-        X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "nmvoc", "hour", "day_of_week", "month"]]
+        X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "hour", "day_of_week", "month"]]
     if (target_variable == "pm25"):
-        X = merged_data[["pm10_x","pm25_x","no2_x","so2","nmvoc","hour","day_of_week","month"]]
+        X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour","day_of_week","month"]]
     Y = merged_data[target_variable + "_y"]
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 
