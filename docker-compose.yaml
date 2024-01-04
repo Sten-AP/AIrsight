@@ -61,6 +61,19 @@ services:
     depends_on:
       - fastapi
 
+  wekeo:
+    container_name: wekeo
+    build: ./backend/WEkEO
+    restart: always
+    networks:
+      - backnet
+    environment:
+      - WEKEO_USERNAME
+      - WEKEO_PASSWORD
+      - WEKEO_API_URL
+    depends_on:
+      - fastapi
+
   grafana:
     container_name: grafana
     image: grafana/grafana-oss:latest
