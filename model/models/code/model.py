@@ -65,8 +65,10 @@ def merge_and_train():
         X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     if (target_variable == "pm25"):
         X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
+    if (target_variable == "no2"):
+        X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     Y = merged_data[target_variable + "_y"]
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
 
     model = LinearRegression()
     model.fit(X_train, Y_train)

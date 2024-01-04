@@ -4,11 +4,15 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".." , "calls", "multiple_sensors", "datasets")
-df = pd.read_csv(os.path.join(datasets_dir, "merged_data.csv"))
+DATASET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "datasets")
+df = pd.read_csv(os.path.join(DATASET_DIR, "merged_data.csv"))
 
 
-correlation = df.corr()
+numeric_df = df.select_dtypes(include=[np.number])
+
+correlation = numeric_df.corr()
+correlation = correlation.dropna(how='all')
+correlation = correlation.dropna(axis=1, how='all')
 print(correlation)
 plt.figure(figsize=(10,8))
 sns.heatmap(correlation, annot=True, cmap='coolwarm',fmt=".2f")

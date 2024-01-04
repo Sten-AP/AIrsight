@@ -41,10 +41,10 @@ while not validChoice:
         sensor_ids = [4878] #TO-DO: get 5 sensors in belgium
         for sensor_id in sensor_ids:
             if check_if_dataset_exists(DATASET_DIR, "openAQ_data.csv"):
-                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04" )
+                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-20" )
                 print("finished fetching data for sensor: ", sensor_id)
             if check_if_dataset_exists(DATASET_DIR, "wekeo_data.csv"):
-                wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon, sensor_id)
+                wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-20T00:00:00.000000Z", lat, lon, sensor_id)
             merge_and_train()
         validChoice = True
     else: 
