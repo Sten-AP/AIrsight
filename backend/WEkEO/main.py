@@ -6,8 +6,7 @@ import numpy as np
 from query import query_settings
 from shutil import rmtree
 from dotenv import load_dotenv
-from requests import Session, get
-import threading
+from requests import Session
 from time import sleep
 import base64
 
@@ -19,7 +18,7 @@ API_URL = getenv("WEKEO_API_URL")
 WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
-DATA_DIR = "data"
+DATA_DIR = f"{BASE_DIR}\\data"
 # SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
 SENSORS = ["4926"]
 DAYS = 1
@@ -27,7 +26,7 @@ DAYS = 1
 
 def get_sensor_locations():
     try:
-        response = get(f"{API_URL}/openaq/").json()
+        response = session.get(f"{API_URL}/openaq/").json()
     except Exception as e:
         print(f"Data not found: {e}")
         
