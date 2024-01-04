@@ -8,6 +8,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi import FastAPI
 from enum import Enum
 import joblib
+import base64
 
 
 load_dotenv()
@@ -22,17 +23,27 @@ PARAMETERS = ["openaq", "wekeo", "prediction"]
 PARAMETERS_ENUM = Enum("enum", {str(i): i for i in PARAMETERS})
 BASE_DIR = path.dirname(__file__)
 
+WEKEO_URL = "https://wekeo-broker.prod.wekeo2.eu/databroker"
+USERNAME = getenv("WEKEO_USERNAME")
+PASSWORD = getenv("WEKEO_PASSWORD")
+API_URL = getenv("WEKEO_API_URL")
+DATA_DIR = f"{BASE_DIR}\\data"
 
 # -----------InfluxDB-settings-----------
 read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
-write_client = InfluxDBClient3(host=INFLUXDB_URL, token=TOKEN, org=ORG, database=BUCKET)
+write_client = InfluxDBClient3(
+    host=INFLUXDB_URL, token=TOKEN, org=ORG, database=BUCKET)
 read_api = read_client.query_api()
 geo = Nominatim(user_agent="airsight")
 
 
+# -----------WEkEO-settings-----------
+credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
+
+
 # -----------Models-----------
-model_pm10 = joblib.load("./models/linear_regression_pm10.joblib")
-model_pm25 = joblib.load("./models/linear_regression_pm25.joblib")
+model_pm10 = joblib.load("model\saved_models\linear_regression_pm10.joblib")
+model_pm25 = joblib.load("model\saved_models\linear_regression_pm25.joblib")
 
 
 # -----------App-settings-----------

@@ -137,7 +137,7 @@ def main():
 
         sensor_locations = get_sensor_locations()
         for sensor in sensor_locations:
-            download_data(sensor['id'], sensor['lat'],sensor['lon'], DAYS)
+            download_data(sensor['id'], sensor['lat'], sensor['lon'], DAYS)
             sleep(1)
         
         post_data(start_and_end_date(DAYS)[0])

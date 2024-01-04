@@ -46,6 +46,9 @@ services:
       - FASTAPI_TOKEN
       - FASTAPI_ORG
       - FASTAPI_BUCKET
+      - WEKEO_USERNAME
+      - WEKEO_PASSWORD
+      - WEKEO_API_URL
     depends_on:
       - influxdb
     volumes:

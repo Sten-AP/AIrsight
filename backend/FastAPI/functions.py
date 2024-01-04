@@ -2,8 +2,6 @@ from pandas import Timestamp
 from setup import BASE_QUERY
 
 # -----------Functions-----------
-
-
 def records(response):
     data = {}
     for table in response:
