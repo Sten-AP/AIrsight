@@ -31,8 +31,8 @@ geo = Nominatim(user_agent="airsight")
 
 
 # -----------Models-----------
-model_pm10 = joblib.load('models\linear_regression_pm10.joblib')
-model_pm25 = joblib.load('models\linear_regression_pm25.joblib')
+# model_pm10 = joblib.load('models\linear_regression_pm10.joblib')
+# model_pm25 = joblib.load('models\linear_regression_pm25.joblib')
 
 
 # -----------App-settings-----------
