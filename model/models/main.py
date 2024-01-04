@@ -50,10 +50,10 @@ while not validChoice:
         sensor_ids = [4878] #TO-DO: get 5 sensors in belgium
         for sensor_id in sensor_ids:
             if overwrite.lower() == 'yes':
-                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-12-01", "2023-12-03" )
+                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-10-01", "2023-12-01" )
                 print("finished fetching data for sensor: ", sensor_id)
             if overwrite.lower() == 'yes':
-                wekeo_api_call("2023-12-02T00:00:00.000000Z","2023-12-02T00:00:00.000000Z", lat, lon, sensor_id)
+                wekeo_api_call("2023-10-01T00:00:00.000000Z","2023-12-01T00:00:00.000000Z", lat, lon, sensor_id)
         merge_and_train()
         validChoice = True
     else: 
