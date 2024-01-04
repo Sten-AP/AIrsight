@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi import FastAPI
 from enum import Enum
+import joblib
 
 
 load_dotenv()
@@ -27,6 +28,11 @@ read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
 write_client = InfluxDBClient3(host=INFLUXDB_URL, token=TOKEN, org=ORG, database=BUCKET)
 read_api = read_client.query_api()
 geo = Nominatim(user_agent="airsight")
+
+
+# -----------Models-----------
+model_pm10 = joblib.load('models\linear_regression_pm10.joblib')
+model_pm25 = joblib.load('models\linear_regression_pm25.joblib')
 
 
 # -----------App-settings-----------
