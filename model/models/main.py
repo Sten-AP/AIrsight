@@ -25,27 +25,36 @@ def check_if_dataset_exists(dataset_dir, filename):
             return True
     return False
 
+overwrite = input("Do you want to overwrite existing datasets? (yes/no): ")
+if overwrite.lower() == 'yes':
+    openAQ_file = os.path.join(DATASET_DIR, "openAQ_data.csv")
+    wekeo_file = os.path.join(DATASET_DIR, "wekeo_data.csv")
+    if os.path.isfile(openAQ_file):
+        os.remove(openAQ_file)
+    if os.path.isfile(wekeo_file):
+        os.remove(wekeo_file)
+
 while not validChoice:
     if (choice ==1): 
         print("Please enter the sensor id of the sensor you want to build a model for: ")
         sensor_id = input()
-        if check_if_dataset_exists(DATASET_DIR, "openAQ_data.csv"):
+        if overwrite.lower() == 'yes':
             lat, lon, sensor_id = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-04")
             print("finished fetching data for sensor: ", sensor_id)
-        if check_if_dataset_exists(DATASET_DIR, "wekeo_data.csv"):
+        if overwrite.lower() == 'yes':
             wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-04T00:00:00.000000Z", lat, lon, sensor_id)
         merge_and_train()
         validChoice = True
     elif (choice ==2): 
-        print("You've chosen multiple sensors, building a model with 5 sensors in belgium...")
+        print("You've chosen multiple sensors, building a model with multiple sensors in belgium...")
         sensor_ids = [4878] #TO-DO: get 5 sensors in belgium
         for sensor_id in sensor_ids:
-            if check_if_dataset_exists(DATASET_DIR, "openAQ_data.csv"):
-                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-10-02", "2023-10-20" )
+            if overwrite.lower() == 'yes':
+                lat, lon, sensor = fetch_sensor_data(sensor_id,"2023-12-01", "2023-12-03" )
                 print("finished fetching data for sensor: ", sensor_id)
-            if check_if_dataset_exists(DATASET_DIR, "wekeo_data.csv"):
-                wekeo_api_call("2023-10-02T00:00:00.000000Z","2023-10-20T00:00:00.000000Z", lat, lon, sensor_id)
-            merge_and_train()
+            if overwrite.lower() == 'yes':
+                wekeo_api_call("2023-12-02T00:00:00.000000Z","2023-12-02T00:00:00.000000Z", lat, lon, sensor_id)
+        merge_and_train()
         validChoice = True
     else: 
         print("Please enter a valid choice")

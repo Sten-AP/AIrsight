@@ -59,9 +59,15 @@ def fetch_sensor_data(sensor_id, start_date, end_date):
             'latitude': values['latitude'],
             'longitude': values['longitude']
         })
+    csv_file = os.path.join(DATASET_DIR, "openAQ_data.csv")
+
     if sensors_list:
         sensors_df = pd.DataFrame(sensors_list).set_index('time')
-        sensors_df.to_csv(os.path.join(DATASET_DIR, "openAQ_data.csv"), index=False)
+        # Check if file exists to avoid writing the header multiple times
+        if os.path.isfile(csv_file):
+            sensors_df.to_csv(csv_file, mode='a', header=False, index=False)
+        else:
+            sensors_df.to_csv(csv_file, index=False)
     else:
         print("No data received from the API.")
         latitude, longitude = None, None

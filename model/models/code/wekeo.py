@@ -99,7 +99,12 @@ def wekeo_api_call(start_date, end_date, lat, lon, sensor_id):
     df["time"] = df["time"] % 24
     df["time"] = df["time"].astype(int)
     df['sensor_id'] = sensor_id 
-    df.to_csv(os.path.join(DATASET_DIR, "wekeo_data.csv"), index=False)
+
+    csv_file = os.path.join(DATASET_DIR, "wekeo_single_input.csv")
+    if os.path.isfile(csv_file):
+        df.to_csv(csv_file, mode='a', header=False, index=False)
+    else:
+        df.to_csv(csv_file, index=False)
 
     if os.path.exists(DATA_DIR):
         try:

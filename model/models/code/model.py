@@ -21,8 +21,8 @@ def merge_and_train():
     training_data = pd.read_csv(training_data_path)
     target_data = pd.read_csv(target_data_path)
 
-    training_data['local_date'] = pd.to_datetime(training_data['local_date'])
-    target_data['local_date'] = pd.to_datetime(target_data['local_date'])
+    training_data['local_date'] = pd.to_datetime(training_data['local_date'], utc=True)
+    target_data['local_date'] = pd.to_datetime(target_data['local_date'], utc=True)
     training_data['sensor_id'] = training_data['sensor_id'].astype(int)
     target_data['sensor_id'] = target_data['sensor_id'].astype(int)
     #timezone differences
@@ -68,7 +68,7 @@ def merge_and_train():
     if (target_variable == "no2"):
         X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     Y = merged_data[target_variable + "_y"]
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=2)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
     model = LinearRegression()
     model.fit(X_train, Y_train)
