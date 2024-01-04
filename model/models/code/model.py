@@ -97,3 +97,4 @@ def merge_and_train():
         print(merged_data.describe())
         sns.pairplot(merged_data)
         plt.show()
+
