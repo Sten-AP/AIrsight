@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir --upgrade -r /FastAPI/requirements.txt
 
 # copy every content from the local file to the image
 COPY . /FastAPI/
-COPY /home/airsight/application/model/saved_models/ /FastAPI/models/
+COPY /home/airsight/application/model/saved_models/ /FastAPI/
 
 CMD ["python3", "-u", "main.py"]
