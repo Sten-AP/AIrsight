@@ -49,7 +49,7 @@ services:
     depends_on:
       - influxdb
     volumes:
-      - ./model/models/saved_models:/FastAPI/models
+      - ./model/saved_models/:/FastAPI/models/
 
   openaq:
     container_name: openaq
