@@ -19,7 +19,7 @@ API_URL = getenv("WEKEO_API_URL")
 WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
-DATA_DIR = f"{BASE_DIR}\\data"
+DATA_DIR = "data"
 # SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
 SENSORS = ["4926"]
 DAYS = 1
