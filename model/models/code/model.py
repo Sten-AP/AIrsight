@@ -1,12 +1,15 @@
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import joblib
+import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-import joblib
 from scipy import stats
-import numpy as np
+
 
 def merge_and_train():
     scaler = MinMaxScaler()
@@ -72,3 +75,11 @@ def merge_and_train():
         model_path = os.path.join(model_dir, f"linear_regression_{target_variable}.joblib")
         joblib.dump(model, model_path)
         print(f"Model saved as linear_regression_{target_variable}")
+
+    plot = input("Do you want to plot the model? (yes/no): ")
+    if plot.lower() == "yes":
+        plt.scatter(Y_test, predictions)
+        plt.xlabel('True Values')
+        plt.ylabel('Predictions')
+        plt.title(f"Linear Regression Model: Predictions vs Actual Values for {target_variable}")
+        plt.show()
