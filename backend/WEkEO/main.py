@@ -20,7 +20,8 @@ WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}\\data"
-SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+# SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+SENSORS = ["4926"]
 DAYS = 1
 
 
@@ -58,7 +59,7 @@ def download_data(id, lat, lon, days):
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
     token_response = session.get(f'{WEKEO_URL}/gettoken', headers={'Authorization': f'Basic {credentials}'}).json()
     headers = {'Authorization': token_response['access_token']}
-    
+
     query = query_settings(lat, lon, date[0], date[1])
     matches = session.post(f'{WEKEO_URL}/datarequest', headers=headers, json=query).json()
     jobId = matches['jobId']
@@ -134,6 +135,13 @@ def post_data(start_date):
 
 def main():
     while True:
+        if path.exists(DATA_DIR):
+            dirs = listdir(DATA_DIR)
+            for dir in dirs:
+                rmtree(f"{DATA_DIR}\\{dir}")
+        else:
+            mkdir(DATA_DIR)
+            
         global done
         done = 0
         sensor_locations = get_sensor_locations()
@@ -144,7 +152,7 @@ def main():
             active_threads = threading.active_count()
             print(f"Threads active: {active_threads-1}")
 
-        while done != len(SENSORS):
+        while done < len(SENSORS):
             sleep(5)
         
         post_data(start_and_end_date(DAYS)[0])
@@ -152,13 +160,6 @@ def main():
     
 
 if __name__ == "__main__":    
-    if path.exists(DATA_DIR):
-        dirs = listdir(DATA_DIR)
-        for dir in dirs:
-            rmtree(f"{DATA_DIR}\\{dir}")
-    else:
-        mkdir(DATA_DIR)
-
     credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
     session = Session()
     main()
