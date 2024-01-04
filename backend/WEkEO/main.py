@@ -138,7 +138,10 @@ def main():
         if path.exists(DATA_DIR):
             dirs = listdir(DATA_DIR)
             for dir in dirs:
-                rmtree(f"{DATA_DIR}\\{dir}")
+                try:
+                    rmtree(f"{DATA_DIR}\\{dir}")
+                except:
+                    print("Directory does't exists")
         else:
             mkdir(DATA_DIR)
             
