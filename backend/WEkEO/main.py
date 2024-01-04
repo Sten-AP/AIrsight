@@ -124,25 +124,30 @@ def post_data(start_date):
                     
             print("sending data to database")
             wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-            print(Session().post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
+            try:
+                print(session.post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
+            except Exception as e:
+                print(f"Error posting data: {e}")
 
 
 def main():
-    sensor_locations = get_sensor_locations()
-    for sensor in sensor_locations:
-        worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
-        worker.start()
-        sleep(1)
-        active_threads = threading.active_count()
-        print(f"Threads active: {active_threads-1}")
+    while True:
+        sensor_locations = get_sensor_locations()
+        for sensor in sensor_locations:
+            worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
+            worker.start()
+            sleep(1)
+            active_threads = threading.active_count()
+            print(f"Threads active: {active_threads-1}")
 
-    while True:        
-        print(threading.active_count())
-        if threading.active_count() == 1:
-            break
-        sleep(5)
-    
-    post_data(start_and_end_date(DAYS)[0])
+        while True:        
+            print(threading.active_count())
+            if threading.active_count() == 1:
+                break
+            sleep(5)
+        
+        post_data(start_and_end_date(DAYS)[0])
+        sleep(43200)
     
 
 if __name__ == "__main__":    
