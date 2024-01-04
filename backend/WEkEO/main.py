@@ -1,8 +1,7 @@
 from netCDF4 import Dataset
 from dotenv import load_dotenv
-from hda import Client, Configuration
 from pandas import Timestamp, DateOffset, DataFrame
-from os import getenv, path, listdir, remove, mkdir
+from os import getenv, path, listdir, mkdir
 import numpy as np
 from query import query_settings
 from shutil import rmtree
@@ -22,7 +21,6 @@ WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}\\data"
 SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
-# SENSORS = ["4926"]
 DAYS = 1
 
 
@@ -128,6 +126,7 @@ def post_data(start_date):
             wekeo_json = DataFrame(wekeo).to_json(orient="split")        
             print(Session().post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
 
+
 def main():
     sensor_locations = get_sensor_locations()
     for sensor in sensor_locations:
@@ -148,9 +147,9 @@ def main():
 
 if __name__ == "__main__":    
     if path.exists(DATA_DIR):
-        files = listdir(DATA_DIR)
-        for file in files:
-            remove(f"{DATA_DIR}\\{file}")
+        dirs = listdir(DATA_DIR)
+        for dir in dirs:
+            rmtree(f"{DATA_DIR}\\{dir}")
     else:
         mkdir(DATA_DIR)
 
