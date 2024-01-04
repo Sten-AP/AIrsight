@@ -49,8 +49,7 @@ services:
     depends_on:
       - influxdb
     volumes:
-      - ./model/models/saved_models/linear_regression_pm10.joblib:/FastAPI/models/
-      - ./model/models/saved_models/linear_regression_pm25.joblib:/FastAPI/models/
+      - ./model/models/saved_models:/FastAPI/models
 
   openaq:
     container_name: openaq
