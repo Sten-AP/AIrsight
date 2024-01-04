@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import joblib
 import numpy as np
+import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
@@ -12,7 +13,6 @@ from scipy import stats
 
 
 def merge_and_train():
-    scaler = MinMaxScaler()
     datasets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "datasets",)
     model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "saved_models",)
     training_data_path = os.path.join(datasets_dir, "wekeo_data.csv")
@@ -27,7 +27,7 @@ def merge_and_train():
     target_data['sensor_id'] = target_data['sensor_id'].astype(int)
     #timezone differences
     training_data['local_date'] = training_data['local_date'].dt.tz_convert('UTC')
-    target_data['local_date'] = target_data['local_date'].dt.tz_localize('UTC')
+    target_data['local_date'] = target_data['local_date'].dt.tz_convert('UTC')
     #merging the two datasets
     merged_data = pd.merge(training_data, target_data, left_on=['local_date', 'sensor_id'], right_on=['local_date', 'sensor_id'], how='inner')
     merged_data = merged_data.sort_values(by=["sensor_id", "local_date"])
@@ -45,8 +45,16 @@ def merge_and_train():
     merged_data['hour'] = merged_data['local_date'].dt.hour
     merged_data['day_of_week'] = merged_data['local_date'].dt.dayofweek
     merged_data['month'] = merged_data['local_date'].dt.month
+
+    # Create sine and cosine features for time-based features
+    merged_data['hour_sin'] = np.sin(2 * np.pi * merged_data['hour']/24)
+    merged_data['hour_cos'] = np.cos(2 * np.pi * merged_data['hour']/24)
+    merged_data['day_of_week_sin'] = np.sin(2 * np.pi * merged_data['day_of_week']/7)
+    merged_data['day_of_week_cos'] = np.cos(2 * np.pi * merged_data['day_of_week']/7)
+    merged_data['month_sin'] = np.sin(2 * np.pi * merged_data['month']/12)
+    merged_data['month_cos'] = np.cos(2 * np.pi * merged_data['month']/12)
+    merged_data.drop(['hour', 'day_of_week', 'month'], axis=1, inplace=True)
     merged_data.to_csv(merged_data_path, index=False)
-    # Now drop the 'local_date' column as we have extracted all the necessary features from it
     merged_data.drop(['local_date'], axis=1, inplace=True)
 
     target_variable = input("Please enter the target variable you want to predict (pm10, pm25, no2): ")
@@ -54,11 +62,11 @@ def merge_and_train():
         print("Please enter a valid target variable")
         target_variable = input("Please enter the target variable you want to predict (pm10, pm25, no2): ")
     if (target_variable == "pm10"):
-        X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "hour", "day_of_week", "month"]]
+        X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     if (target_variable == "pm25"):
-        X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour","day_of_week","month"]]
+        X = merged_data[["pm10_x","pm25_x","no2_x","so2","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     Y = merged_data[target_variable + "_y"]
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
     model = LinearRegression()
     model.fit(X_train, Y_train)
@@ -78,8 +86,12 @@ def merge_and_train():
 
     plot = input("Do you want to plot the model? (yes/no): ")
     if plot.lower() == "yes":
-        plt.scatter(Y_test, predictions)
-        plt.xlabel('True Values')
-        plt.ylabel('Predictions')
-        plt.title(f"Linear Regression Model: Predictions vs Actual Values for {target_variable}")
+        plt.figure(figsize=(8, 6))
+        sns.regplot(x=Y_test, y=predictions, scatter_kws={'color':'blue'}, line_kws={'color':'orange'})
+        plt.xlabel(f'actual {target_variable} values')
+        plt.ylabel(f'predicted {target_variable} Values')
+        plt.title('regression Line')
+        plt.show()
+        print(merged_data.describe())
+        sns.pairplot(merged_data)
         plt.show()

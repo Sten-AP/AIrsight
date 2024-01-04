@@ -51,7 +51,7 @@ def fetch_sensor_data(sensor_id, start_date, end_date):
         local_date_converted = local_date_converted + timedelta(hours=offset_hours)
         sensors_list.append({
             'time': local_date_converted.hour,
-            'local_date': local_date_converted.replace(tzinfo=None).isoformat(),
+            'local_date': local_date,
             'sensor_id': sensor_id,
             'pm10': values['pm10'],
             'pm25': values['pm25'],
