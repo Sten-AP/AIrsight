@@ -52,6 +52,7 @@ def check_status(url, headers):
 
 
 def download_data(id, lat, lon, days):
+    global done
     date = start_and_end_date(days)
     
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
@@ -83,6 +84,7 @@ def download_data(id, lat, lon, days):
             for chunk in download_response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
+    done += 1
 
 
 def post_data(start_date):
@@ -132,6 +134,8 @@ def post_data(start_date):
 
 def main():
     while True:
+        global done
+        done = 0
         sensor_locations = get_sensor_locations()
         for sensor in sensor_locations:
             worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
@@ -140,10 +144,7 @@ def main():
             active_threads = threading.active_count()
             print(f"Threads active: {active_threads-1}")
 
-        while True:        
-            print(threading.active_count())
-            if threading.active_count() == 1:
-                break
+        while done != len(SENSORS):
             sleep(5)
         
         post_data(start_and_end_date(DAYS)[0])
