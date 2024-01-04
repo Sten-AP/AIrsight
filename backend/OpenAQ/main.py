@@ -21,7 +21,6 @@ def get_address_by_location(latitude, longitude, language="en"):
 
 
 def main():
-    session = Session()
     while True:
         response = get(url=OPENAQ_URL, headers={"accept": "application/json"}).json()
         sensoren = []
@@ -62,4 +61,5 @@ def main():
 
 if __name__ == "__main__":
     geo = Nominatim(user_agent="airsight")
+    session = Session()
     main()
