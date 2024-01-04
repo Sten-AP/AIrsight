@@ -136,14 +136,8 @@ def post_data(start_date):
 def main():
     while True:
         if path.exists(DATA_DIR):
-            dirs = listdir(DATA_DIR)
-            for dir in dirs:
-                try:
-                    rmtree(f"{DATA_DIR}\\{dir}")
-                except:
-                    print("Directory does't exists")
-        else:
-            mkdir(DATA_DIR)
+            rmtree(DATA_DIR)
+        mkdir(DATA_DIR)
             
         global done
         done = 0
