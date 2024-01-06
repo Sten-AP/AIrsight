@@ -28,6 +28,8 @@ USERNAME = getenv("WEKEO_USERNAME")
 PASSWORD = getenv("WEKEO_PASSWORD")
 API_URL = getenv("WEKEO_API_URL")
 DATA_DIR = f"{BASE_DIR}\\data"
+MODELS_DIR = getenv("MODELS_DIR")
+
 
 # -----------InfluxDB-settings-----------
 read_client = InfluxDBClient(url=INFLUXDB_URL, token=TOKEN, org=ORG)
@@ -42,8 +44,8 @@ credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 # -----------Models-----------
-model_pm10 = joblib.load("model\saved_models\linear_regression_pm10.joblib")
-model_pm25 = joblib.load("model\saved_models\linear_regression_pm25.joblib")
+model_pm10 = joblib.load(f"{MODELS_DIR}\linear_regression_pm10.joblib")
+model_pm25 = joblib.load(f"{MODELS_DIR}\linear_regression_pm25.joblib")
 
 
 # -----------App-settings-----------
