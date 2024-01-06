@@ -157,6 +157,7 @@ def main():
             sleep(10)
             
         id_dirs = listdir(DATA_DIR)
+        print(id_dirs)
         for id_dir in id_dirs:
             print(listdir(f"{DATA_DIR}/{id_dir}"))
             # nc_files = [f for f in listdir(f"{DATA_DIR}/{id_dir}") if f.endswith('.nc')]
