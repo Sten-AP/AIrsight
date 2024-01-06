@@ -152,9 +152,12 @@ def main():
             thread.start()
             sleep(1)
         
-        if index == len(SENSORS):
-            post_data(start_and_end_date(DAYS)[0])
-            index = 0
+        while index != len(SENSORS):
+            print(threading.activeCount())
+            sleep(5)
+            
+        post_data(start_and_end_date(DAYS)[0])
+        index = 0
         sleep(43200)
     
 
