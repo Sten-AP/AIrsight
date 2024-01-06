@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from requests import Session
 from time import sleep
 import base64
+import threading
 
 load_dotenv()
 
@@ -51,6 +52,7 @@ def check_status(url, headers):
 
 
 def download_data(id, lat, lon, days):
+    global index
     date = start_and_end_date(days)
     
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
@@ -82,6 +84,7 @@ def download_data(id, lat, lon, days):
             for chunk in download_response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
+    index += 1
 
 
 def post_data(start_date):
@@ -130,6 +133,9 @@ def post_data(start_date):
 
 
 def main():
+    global index
+    index = 0
+
     while True:
         if path.exists(DATA_DIR):
             rmtree(DATA_DIR)
@@ -142,10 +148,13 @@ def main():
             sensor_locations = get_sensor_locations()
             
         for sensor in sensor_locations:
-            download_data(sensor['id'], sensor['lat'], sensor['lon'], DAYS)
+            thread = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'], sensor['lon'], DAYS))
+            thread.start()
             sleep(1)
         
-        post_data(start_and_end_date(DAYS)[0])
+        if index == len(SENSORS):
+            post_data(start_and_end_date(DAYS)[0])
+            index = 0
         sleep(43200)
     
 
