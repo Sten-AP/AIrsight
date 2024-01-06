@@ -155,6 +155,13 @@ def main():
         
         while index != len(SENSORS):
             sleep(10)
+            
+        id_dirs = listdir(DATA_DIR)
+        for id_dir in id_dirs:
+            print(listdir(f"{DATA_DIR}/{id_dir}"))
+            # nc_files = [f for f in listdir(f"{DATA_DIR}/{id_dir}") if f.endswith('.nc')]
+            # print(nc_files)
+            
         print("Posting all data")
         post_data(start_and_end_date(DAYS)[0])
         print("Done posting all data")
