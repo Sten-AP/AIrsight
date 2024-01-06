@@ -20,7 +20,8 @@ WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}\\data"
-SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+# SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
+SENSORS = ["72334"]
 DAYS = 1
 
 
@@ -125,8 +126,7 @@ def post_data(start_date):
                         data_dict.update({key: data[key][i]})    
                 wekeo.append(data_dict)
                     
-            print("sending data to database")
-            wekeo_json = DataFrame(wekeo).to_json(orient="split")        
+            wekeo_json = DataFrame(wekeo).to_json(orient="split") 
             try:
                 print(session.post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
             except Exception as e:
@@ -155,8 +155,9 @@ def main():
         
         while index != len(SENSORS):
             sleep(10)
-            
+        print("Posting all data")
         post_data(start_and_end_date(DAYS)[0])
+        print("Done posting all data")
         index = 0
         sleep(43200)
     
