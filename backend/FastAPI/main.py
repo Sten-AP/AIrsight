@@ -62,7 +62,7 @@ async def custom_prediction(location: Location):
 
     data_df = DataFrame([dict(data)]).set_index("time")
     try:
-        write_client.write(data_df, data_frame_measurement_name=f"prediction",
+        write_client.write(data_df, data_frame_measurement_name=f"predictions",
                            data_frame_tag_columns=['country', 'country_code', 'id', 'region'])
         return {"message": f"Prediction {id} succesfully added to database"}
     except Exception as e:
