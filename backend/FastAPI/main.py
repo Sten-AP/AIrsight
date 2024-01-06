@@ -1,12 +1,14 @@
-from setup import app, write_client, read_api, geo, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
+from setup import app, write_client, read_api, geo, model_pm10, model_pm25, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
+from wekeo import download_data, predict
 from fastapi.responses import ORJSONResponse
-from classes import Data, Dates
+from classes import Data, Dates, Location
 from functions import get_query, list_all_items
 from pandas import read_json
 from uvicorn import run
 from io import StringIO
 import json
 
+index = 1
 
 # -----------Routes-----------
 @app.post("/api/{param}/new/", tags=["Add item"], summary="Add new data to database")
@@ -26,6 +28,20 @@ async def add_new_data(data: Data, param: PARAMETERS_ENUM):
         return {"message": f"{param} data succesfully added to database"}
     except Exception as e:
         return {"message": f"error with adding {param} data to database: {e}"}
+
+
+@app.post("/api/predict/", tags=["Add item"], summary="Get prediction of custom location")
+async def custom_prediction(location: Location):
+    id = f"request-{index}"
+
+    download_data(id, round(location.lat, 2), round(location.lon, 2), 1)
+    # predict(model_pm10)
+    try:
+        # write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
+        # index += 1
+        return {"message": f"Prediction request succesfully added to database"}
+    except Exception as e:
+        return {"message": f"error with adding prediction request to database: {e}"}
 
 
 @app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
@@ -69,11 +85,11 @@ async def locations():
         data = []
         for country in countries:
             country_data = {}
-            
+
             country_code = list(country.values())[0]
             country_name = list(country.keys())[0]
             country_data.update({"country": country_name})
-            
+
             regions = []
             for region in records_regions:
                 locations = geo.geocode(
@@ -151,4 +167,4 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], reload=True)

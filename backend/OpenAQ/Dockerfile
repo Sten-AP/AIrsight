@@ -12,7 +12,5 @@ RUN pip install --no-cache-dir --upgrade -r /OpenAQ/requirements.txt
 # copy every content from the local file to the image
 COPY . /OpenAQ/
 
-# configure the container to run in an executed manner
-ENTRYPOINT [ "python3" ]
+CMD ["python3", "-u", "main.py"]
 
-CMD ["main.py" ]

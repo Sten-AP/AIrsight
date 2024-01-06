@@ -12,7 +12,4 @@ RUN pip install --no-cache-dir --upgrade -r /FastAPI/requirements.txt
 # copy every content from the local file to the image
 COPY . /FastAPI/
 
-# configure the container to run in an executed manner
-ENTRYPOINT [ "python3" ]
-
-CMD ["main.py" ]
+CMD ["python3", "-u", "main.py"]

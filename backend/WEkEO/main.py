@@ -1,36 +1,36 @@
-import netCDF4 as nc
+from netCDF4 import Dataset
 from dotenv import load_dotenv
-from hda import Client, Configuration
 from pandas import Timestamp, DateOffset, DataFrame
-from os import getenv, path, listdir, remove
+from os import getenv, path, listdir, mkdir
 import numpy as np
 from query import query_settings
 from shutil import rmtree
 from dotenv import load_dotenv
-from requests import Session, get
-import threading
+from requests import Session
 from time import sleep
+import base64
+import threading
 
 load_dotenv()
 
 USERNAME = getenv("WEKEO_USERNAME")
 PASSWORD = getenv("WEKEO_PASSWORD")
 API_URL = getenv("WEKEO_API_URL")
+WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
 SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
-DAYS = 3
+DAYS = 1
 
-
-if path.exists(DATA_DIR):
-    rmtree(DATA_DIR)
 
 def get_sensor_locations():
     try:
-        response = get(f"{API_URL}/openaq/").json()
-    except Exception as e:
-        print(f"Data not found: {e}")
+        response = session.get(f"{API_URL}/openaq/").json()
+    except:
+        sleep(2)
+        print("Retry getting sensorlocations")
+        get_sensor_locations()
         
     locations = []
     for sensor in response:
@@ -38,20 +38,56 @@ def get_sensor_locations():
             locations.append({'id': sensor['id'], 'lon': sensor['lon'], 'lat': sensor['lat']})              
     return locations
 
+
 def start_and_end_date(days):
     start_date = (Timestamp.now(tz='UCT') - DateOffset(days)).strftime('%Y-%m-%d')
     end_date = (Timestamp.now(tz='UCT') - DateOffset(0)).strftime('%Y-%m-%d')
     return [start_date, end_date]
 
+
+def check_status(url, headers):
+    while True:
+        status_response = session.get(url, headers=headers).json()
+        if status_response['status'] == 'completed':
+            break
+        sleep(5)
+
+
 def download_data(id, lat, lon, days):
+    global index
     date = start_and_end_date(days)
     
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
+    token_response = session.get(f'{WEKEO_URL}/gettoken', headers={'Authorization': f'Basic {credentials}'}).json()
+    headers = {'Authorization': token_response['access_token']}
+
     query = query_settings(lat, lon, date[0], date[1])
-    matches = hda_client.search(query)
-        
-    print("downloading data")
-    matches.download(f"{DATA_DIR}/{id}")
+    matches = session.post(f'{WEKEO_URL}/datarequest', headers=headers, json=query).json()
+    jobId = matches['jobId']
+    
+    check_status(f'{WEKEO_URL}/datarequest/status/{jobId}', headers)
+    results_response = session.get(f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
+    
+    for result in results_response['content']:
+        order_data = {
+            "jobId": jobId,
+            "uri": result['url']  
+        }
+        order_response = session.post(f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
+
+        check_status(f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
+        download_response = session.get(f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)
+
+        if not path.exists(f"{DATA_DIR}/{id}"):
+            mkdir(f"{DATA_DIR}/{id}")
+            
+        with open(f"{DATA_DIR}/{id}/{order_response['orderId']}.nc", 'wb') as f:
+            for chunk in download_response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+    index += 1
+    print(f"{index}/{len(SENSORS)} requests done ")
+
 
 def post_data(start_date):
     id_dirs = listdir(DATA_DIR)
@@ -59,7 +95,7 @@ def post_data(start_date):
         nc_files = [f for f in listdir(f"{DATA_DIR}/{id_dir}") if f.endswith('.nc')]
     
         for nc_file in nc_files:
-            data_file = nc.Dataset(f"{DATA_DIR}/{id_dir}/{nc_file}")
+            data_file = Dataset(f"{DATA_DIR}/{id_dir}/{nc_file}")
             
             data = {}
             for key in data_file.variables.keys():
@@ -90,28 +126,38 @@ def post_data(start_date):
                         data_dict.update({key: data[key][i]})    
                 wekeo.append(data_dict)
                     
-            print("sending data to database")
-            wekeo_json = DataFrame(wekeo).to_json(orient="split")        
-            print(Session().post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
+            wekeo_json = DataFrame(wekeo).to_json(orient="split") 
+            try:
+                print(session.post(f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
+            except Exception as e:
+                print(f"Error posting data: {e}")
+
 
 def main():
-    sensor_locations = get_sensor_locations()
-    for sensor in sensor_locations:
-        worker = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'],sensor['lon'], DAYS,))
-        worker.start()
-        sleep(1)
-        active_threads = threading.active_count()
-        print(f"Threads active: {active_threads-1}")
+    global index
+    index = 0
 
     while True:
-        if threading.active_count() == 2:
-            break
-        sleep(5)
-    
-    post_data(start_and_end_date(DAYS)[0])
+        if path.exists(DATA_DIR):
+            rmtree(DATA_DIR)
+        mkdir(DATA_DIR)
+
+        sensor_locations = get_sensor_locations()
+
+        for sensor in sensor_locations:
+            thread = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'], sensor['lon'], DAYS))
+            thread.start()
+            sleep(1)
+        
+        while index != len(SENSORS):
+            sleep(10)
+        
+        post_data(start_and_end_date(DAYS)[0])
+        index = 0
+        sleep(43200)
     
 
-if __name__ == "__main__":
-    config = Configuration(user=USERNAME, password=PASSWORD)
-    hda_client = Client(config=config, progress=True, max_workers=2)
+if __name__ == "__main__":    
+    credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
+    session = Session()
     main()

@@ -46,8 +46,14 @@ services:
       - FASTAPI_TOKEN
       - FASTAPI_ORG
       - FASTAPI_BUCKET
+      - WEKEO_USERNAME
+      - WEKEO_PASSWORD
+      - WEKEO_API_URL
+      - MODELS_DIR
     depends_on:
       - influxdb
+    volumes:
+      - ./model/saved_models/:/FastAPI/models/
 
   openaq:
     container_name: openaq
@@ -58,6 +64,19 @@ services:
     environment:
       - OPENAQ_URL
       - OPENAQ_API_URL
+    depends_on:
+      - fastapi
+
+  wekeo:
+    container_name: wekeo
+    build: ./backend/WEkEO
+    restart: always
+    networks:
+      - backnet
+    environment:
+      - WEKEO_USERNAME
+      - WEKEO_PASSWORD
+      - WEKEO_API_URL
     depends_on:
       - fastapi
 

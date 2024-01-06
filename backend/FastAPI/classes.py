@@ -7,3 +7,7 @@ class Data(BaseModel):
 class Dates(BaseModel):
     start_date: str = None
     stop_date: str = None
+    
+class Location(BaseModel):
+    lat: float
+    lon: float

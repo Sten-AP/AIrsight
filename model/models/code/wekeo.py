@@ -69,6 +69,7 @@ def wekeo_api_call(start_date, end_date, lat, lon, sensor_id):
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
+                    
     def read_nc_variables(DATA_DIR, variable_names, start_date):
         nc_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.nc')]
         print(f"Found {len(nc_files)} .nc files in {DATA_DIR}")
