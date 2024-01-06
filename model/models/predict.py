@@ -16,6 +16,7 @@ data = {
     "pm10_x": [40.440094],
     "no2_x": [30.342562],
     "so2": [9.82618],
+    "co_conc": [492.08505],
     "hour_sin": [np.sin(2 * np.pi * date.hour/24)],
     "hour_cos": [np.cos(2 * np.pi * date.hour/24)],
     "day_of_week_sin": [np.sin(2 * np.pi * date.weekday()/7)],
@@ -29,3 +30,4 @@ X_test = pd.DataFrame(data)
 prediction = model.predict(X_test)
 
 print(prediction)
+
