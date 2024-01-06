@@ -1,5 +1,5 @@
 from setup import app, write_client, read_api, geo, model_pm10, model_pm25, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
-from wekeo import download_data, predict
+from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
 from functions import get_query, list_all_items
@@ -34,8 +34,10 @@ async def add_new_data(data: Data, param: PARAMETERS_ENUM):
 async def custom_prediction(location: Location):
     id = f"request-{index}"
 
-    download_data(id, round(location.lat, 2), round(location.lon, 2), 1)
-    # predict(model_pm10)
+    data = download_data(location.lat, location.lon)
+    prediction_pm10 = model_pm10.predict(data)
+    print(prediction_pm10)
+    # prediction_pm25 = model_pm25.predict(data)
     try:
         # write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
         # index += 1
@@ -167,4 +169,4 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], reload=True)
+    run("main:app", host="0.0.0.0", port=5000, proxy_headers=True, forwarded_allow_ips=['*'], reload=True)
