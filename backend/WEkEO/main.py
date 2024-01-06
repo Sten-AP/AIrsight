@@ -27,8 +27,10 @@ DAYS = 1
 def get_sensor_locations():
     try:
         response = session.get(f"{API_URL}/openaq/").json()
-    except Exception as e:
-        print(f"Data not found: {e}")
+    except:
+        sleep(2)
+        print("Retry getting sensorlocations")
+        get_sensor_locations()
         
     locations = []
     for sensor in response:
@@ -66,7 +68,6 @@ def download_data(id, lat, lon, days):
     check_status(f'{WEKEO_URL}/datarequest/status/{jobId}', headers)
     results_response = session.get(f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
     
-    print("downloading data")
     for result in results_response['content']:
         order_data = {
             "jobId": jobId,
@@ -141,12 +142,8 @@ def main():
             rmtree(DATA_DIR)
         mkdir(DATA_DIR)
 
-        try:
-            sensor_locations = get_sensor_locations()
-        except:
-            sleep(5)
-            sensor_locations = get_sensor_locations()
-            
+        sensor_locations = get_sensor_locations()
+
         for sensor in sensor_locations:
             thread = threading.Thread(target=download_data, args=(sensor['id'], sensor['lat'], sensor['lon'], DAYS))
             thread.start()
@@ -155,9 +152,7 @@ def main():
         while index != len(SENSORS):
             sleep(10)
         
-        print("Posting all data")
         post_data(start_and_end_date(DAYS)[0])
-        print("Done posting all data")
         index = 0
         sleep(43200)
     
