@@ -153,8 +153,8 @@ def main():
             sleep(1)
         
         while index != len(SENSORS):
-            print(threading.activeCount())
-            sleep(5)
+            print(f"{index}/{len(SENSORS)} requests done ")
+            sleep(10)
             
         post_data(start_and_end_date(DAYS)[0])
         index = 0
