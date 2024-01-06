@@ -2,7 +2,7 @@ from setup import app, write_client, read_api, geo, model_no2, model_pm10, model
 from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
-from functions import get_query, list_all_items
+from functions import get_query, list_all_items, get_address_by_location
 from pandas import read_json, Timestamp, DataFrame
 from uvicorn import run
 from io import StringIO
@@ -40,11 +40,20 @@ async def custom_prediction(location: Location):
     prediction_pm25 = model_pm25.predict(downloaded_data)[0]
 
     timestamp = Timestamp.now(tz='UCT').floor('ms')
-
+    address = get_address_by_location()
+    
+    if address.get("state") is not None:
+        state = address["state"]
+    else:
+        state = address["region"]
+        
     data = {
         'id': id,
         'lat': float(location.lat),
         'lon': float(location.lon),
+        'region': state,
+        'country': address["country"],
+        'country_code': address["country_code"].upper(),
         'no2': float(prediction_no2),
         'pm10': float(prediction_pm10),
         'pm25': float(prediction_pm25),
@@ -53,7 +62,8 @@ async def custom_prediction(location: Location):
 
     data_df = DataFrame([dict(data)]).set_index("time")
     try:
-        write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
+        write_client.write(data_df, data_frame_measurement_name=f"prediction",
+                           data_frame_tag_columns=['country', 'country_code', 'id', 'region'])
         return {"message": f"Prediction {id} succesfully added to database"}
     except Exception as e:
         return {"message": f"error with adding prediction {id} to database: {e}"}
