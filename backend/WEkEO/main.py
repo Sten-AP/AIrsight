@@ -20,8 +20,7 @@ WEKEO_URL ="https://wekeo-broker.prod.wekeo2.eu/databroker"
 
 BASE_DIR = path.dirname(__file__)
 DATA_DIR = f"{BASE_DIR}/data"
-# SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
-SENSORS = ["72334"]
+SENSORS = ["4926", "4463", "3036", "4861", "3126", "72334"]
 DAYS = 1
 
 
@@ -81,7 +80,7 @@ def download_data(id, lat, lon, days):
         if not path.exists(f"{DATA_DIR}/{id}"):
             mkdir(f"{DATA_DIR}/{id}")
             
-        with open(f"{DATA_DIR}\\{id}\\{order_response['orderId']}.nc", 'wb') as f:
+        with open(f"{DATA_DIR}/{id}/{order_response['orderId']}.nc", 'wb') as f:
             for chunk in download_response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
@@ -155,14 +154,7 @@ def main():
         
         while index != len(SENSORS):
             sleep(10)
-            
-        id_dirs = listdir(DATA_DIR)
-        print(id_dirs)
-        for id_dir in id_dirs:
-            print(listdir(f"{DATA_DIR}/{id_dir}"))
-            # nc_files = [f for f in listdir(f"{DATA_DIR}/{id_dir}") if f.endswith('.nc')]
-            # print(nc_files)
-            
+        
         print("Posting all data")
         post_data(start_and_end_date(DAYS)[0])
         print("Done posting all data")
