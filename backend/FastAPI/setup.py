@@ -19,7 +19,7 @@ TOKEN = getenv("FASTAPI_TOKEN")
 ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
 BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
-PARAMETERS = ["openaq", "wekeo", "prediction"]
+PARAMETERS = ["openaq", "wekeo", "predictions"]
 PARAMETERS_ENUM = Enum("Parameters", {str(i): i for i in PARAMETERS})
 BASE_DIR = path.dirname(__file__)
 
