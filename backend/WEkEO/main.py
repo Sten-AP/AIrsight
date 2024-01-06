@@ -85,6 +85,7 @@ def download_data(id, lat, lon, days):
                 if chunk:
                     f.write(chunk)
     index += 1
+    print(f"{index}/{len(SENSORS)} requests done ")
 
 
 def post_data(start_date):
@@ -153,7 +154,6 @@ def main():
             sleep(1)
         
         while index != len(SENSORS):
-            print(f"{index}/{len(SENSORS)} requests done ")
             sleep(10)
             
         post_data(start_and_end_date(DAYS)[0])
