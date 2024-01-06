@@ -64,9 +64,9 @@ def merge_and_train():
     if (target_variable == "pm10"):
         X = merged_data[["pm25_x", "pm10_x", "no2_x", "so2", "co_conc", "hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     if (target_variable == "pm25"):
-        X = merged_data[["pm10_x","pm25_x","no2_x","so2", "co_conc","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
+        X = merged_data[["pm25_x", "pm10_x","no2_x","so2", "co_conc","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     if (target_variable == "no2"):
-        X = merged_data[["pm10_x","pm25_x","no2_x","so2", "co_conc","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
+        X = merged_data[["pm25_x", "pm10_x","no2_x","so2", "co_conc","hour_sin","hour_cos","day_of_week_sin","day_of_week_cos","month_sin","month_cos"]]
     Y = merged_data[target_variable + "_y"]
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 
