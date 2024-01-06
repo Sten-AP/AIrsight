@@ -49,6 +49,7 @@ services:
       - WEKEO_USERNAME
       - WEKEO_PASSWORD
       - WEKEO_API_URL
+      - MODELS_DIR
     depends_on:
       - influxdb
     volumes:
