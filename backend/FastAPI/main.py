@@ -11,8 +11,6 @@ import json
 index = 1
 
 # -----------Routes-----------
-
-
 @app.post("/api/{param}/new/", tags=["Add item"], summary="Add new data to database")
 async def add_new_data(data: Data, param: PARAMETERS_ENUM):
     param = param.value
@@ -36,7 +34,7 @@ async def add_new_data(data: Data, param: PARAMETERS_ENUM):
 async def custom_prediction(location: Location):
     id = f"request-{index}"
 
-    download_data(id, round(location.lat, 5), round(location.lon, 5), 1)
+    download_data(id, round(location.lat, 2), round(location.lon, 2), 1)
     # predict(model_pm10)
     try:
         # write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
@@ -169,5 +167,4 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000,
-        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], reload=True)
