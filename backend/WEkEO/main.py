@@ -135,7 +135,12 @@ def main():
             rmtree(DATA_DIR)
         mkdir(DATA_DIR)
 
-        sensor_locations = get_sensor_locations()
+        try:
+            sensor_locations = get_sensor_locations()
+        except:
+            sleep(5)
+            sensor_locations = get_sensor_locations()
+            
         for sensor in sensor_locations:
             download_data(sensor['id'], sensor['lat'], sensor['lon'], DAYS)
             sleep(1)
