@@ -42,8 +42,12 @@ credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 # -----------Models-----------
-model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
-model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
+# model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
+# model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
+
+model_pm10 = joblib.load(f"model/saved_models/linear_regression_pm10.joblib")
+model_pm25 = joblib.load(f"model/saved_models/linear_regression_pm25.joblib")
+
 
 
 # -----------App-settings-----------

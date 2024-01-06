@@ -35,9 +35,10 @@ async def custom_prediction(location: Location):
     id = f"request-{index}"
 
     data = download_data(location.lat, location.lon)
-    prediction_pm10 = model_pm10.predict(data)
-    print(prediction_pm10)
-    # prediction_pm25 = model_pm25.predict(data)
+    prediction_pm10 = model_pm10.predict(data)[0]
+    print(f"Prediction pm10: {prediction_pm10}")
+    prediction_pm25 = model_pm25.predict(data)[0]
+    print(f"Prediction pm2.5: {prediction_pm25}")
     try:
         # write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
         # index += 1
