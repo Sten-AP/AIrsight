@@ -40,7 +40,7 @@ async def custom_prediction(location: Location):
     prediction_pm25 = model_pm25.predict(downloaded_data)[0]
 
     timestamp = Timestamp.now(tz='UCT').floor('ms')
-    address = get_address_by_location()
+    address = get_address_by_location(location.lat, location.lon)
     
     if address.get("state") is not None:
         state = address["state"]
