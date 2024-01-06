@@ -27,7 +27,6 @@ WEKEO_URL = "https://wekeo-broker.prod.wekeo2.eu/databroker"
 USERNAME = getenv("WEKEO_USERNAME")
 PASSWORD = getenv("WEKEO_PASSWORD")
 API_URL = getenv("WEKEO_API_URL")
-DATA_DIR = f"{BASE_DIR}\\data"
 
 
 # -----------InfluxDB-settings-----------
@@ -51,7 +50,7 @@ model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
 app = FastAPI(
     title="AIrsight",
     summary="AIrsight API",
-    version="1.0.0",
+    version="1.1.1",
     openapi_tags=[
         {
             "name": "Add item",
