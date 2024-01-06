@@ -58,6 +58,7 @@ def conver_dataframe(df):
         "pm10_x": df["pm10"][0],
         "no2_x": df["no2"][0],
         "so2": df["so2"][0],
+        "co_conc": df["co_conc"][0],
         "hour_sin": [np.sin(2 * np.pi * df["hour"][0]/24)],
         "hour_cos": [np.cos(2 * np.pi * df["hour"][0]/24)],
         "day_of_week_sin": [np.sin(2 * np.pi * weekday/7)],
