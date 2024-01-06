@@ -1,4 +1,7 @@
+from datetime import datetime
+
 def query_settings(lat, lon, start_date, end_date):
+    date = datetime.now()
     box = 0.05
     query = {
         "datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
@@ -24,7 +27,7 @@ def query_settings(lat, lon, start_date, end_date):
             {
                 "name": "variable",
                 "value": [
-                        "particulate_matter_10um",
+                    "particulate_matter_10um",
                     "particulate_matter_2.5um",
                     "ozone",
                     "carbon_monoxide",
@@ -35,18 +38,18 @@ def query_settings(lat, lon, start_date, end_date):
             {
                 "name": "model",
                 "value": [
-                        "ensemble",  # Enseble median
-                    "chimere",  # INERIS (France)
-                    "dehm",     # AARHUS UNIVERSITY (Denmark)
-                    "emep",		  # MET Norway (Norway)
-                    "euradim",  # Jülich IEK (Germany)
-                    "gemaq",		# IEP-NRI (Poland)
+                    # "ensemble",  # Enseble median
+                    # "chimere",  # INERIS (France)
+                    # "dehm",     # AARHUS UNIVERSITY (Denmark)
+                    # "emep",		  # MET Norway (Norway)
+                    # "euradim",  # Jülich IEK (Germany)
+                    # "gemaq",		# IEP-NRI (Poland)
                     "lotos",		  # KNMI and TNO (Netherlands)
-                    "match",		# SMHI (Sweden)
-                    "minni",    # ENEA (Italy)
-                    "mocage",		# METEO-FRANCE (France)
-                    "monarch",  # BSC (Spain)
-                    "silam"			# FMI (Finland)
+                    # "match",		# SMHI (Sweden)
+                    # "minni",    # ENEA (Italy)
+                    # "mocage",		# METEO-FRANCE (France)
+                    # "monarch",  # BSC (Spain)
+                    # "silam"			# FMI (Finland)
                 ]
             },
             {
@@ -64,30 +67,7 @@ def query_settings(lat, lon, start_date, end_date):
             {
                 "name": "time",
                 "value": [
-                        "00:00",
-                    "01:00",
-                    "02:00",
-                    "03:00",
-                    "04:00",
-                    "05:00",
-                    "06:00",
-                    "07:00",
-                    "08:00",
-                    "09:00",
-                    "10:00",
-                    "11:00",
-                    "12:00",
-                    "13:00",
-                    "14:00",
-                    "15:00",
-                    "16:00",
-                    "17:00",
-                    "18:00",
-                    "19:00",
-                    "20:00",
-                    "21:00",
-                    "22:00",
-                    "23:00"
+                    f"{date.hour}:00",
                 ]
             },
             {
