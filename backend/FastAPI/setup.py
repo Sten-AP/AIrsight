@@ -20,7 +20,7 @@ ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
 BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
 PARAMETERS = ["openaq", "wekeo", "prediction"]
-PARAMETERS_ENUM = Enum("enum", {str(i): i for i in PARAMETERS})
+PARAMETERS_ENUM = Enum("Parameters", {str(i): i for i in PARAMETERS})
 BASE_DIR = path.dirname(__file__)
 
 WEKEO_URL = "https://wekeo-broker.prod.wekeo2.eu/databroker"
