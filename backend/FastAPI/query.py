@@ -1,7 +1,12 @@
 from datetime import datetime
 
+
 def query_settings(lat, lon, start_date, end_date):
     date = datetime.now()
+    hour = str(date.hour)
+    if len(hour) == 1:
+        hour = f"0{hour}"
+
     box = 0.05
     query = {
         "datasetId": "EO:ECMWF:DAT:CAMS_EUROPE_AIR_QUALITY_FORECASTS",
@@ -67,7 +72,7 @@ def query_settings(lat, lon, start_date, end_date):
             {
                 "name": "time",
                 "value": [
-                    f"{date.hour}:00",
+                    f"{hour}:00",
                 ]
             },
             {

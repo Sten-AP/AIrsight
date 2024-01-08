@@ -47,13 +47,17 @@ def start_and_end_date(days):
 
 def check_status(url, headers):
     while True:
-        status_response = session.get(url, headers=headers).json()
+        try:
+            status_response = session.get(url, headers=headers).json()
+        except:
+            print("Retry getting response")
         if status_response['status'] == 'completed':
             break
         sleep(5)
 
 
 def download_data(id, lat, lon, days):
+    session.post(f"{API_URL}/predict/", json={"lat": lat, "lon": lon})
     global index
     date = start_and_end_date(days)
     
@@ -134,14 +138,14 @@ def post_data(start_date):
 
 
 def main():
-    global index
-    index = 0
-
     while True:
+        global index
+        index = 0
+        
         if path.exists(DATA_DIR):
             rmtree(DATA_DIR)
         mkdir(DATA_DIR)
-
+        
         sensor_locations = get_sensor_locations()
 
         for sensor in sensor_locations:
@@ -153,8 +157,7 @@ def main():
             sleep(10)
         
         post_data(start_and_end_date(DAYS)[0])
-        index = 0
-        sleep(43200)
+        sleep(7200)
     
 
 if __name__ == "__main__":    

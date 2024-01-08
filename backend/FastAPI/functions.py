@@ -1,5 +1,5 @@
 from pandas import Timestamp
-from setup import BASE_QUERY
+from setup import BASE_QUERY, geo
 
 # -----------Functions-----------
 def records(response):
@@ -70,3 +70,13 @@ def get_query(param, id=None, data=None, start_date=None, stop_date=None):
         time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
 
     return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
+
+
+def get_address_by_location(latitude, longitude, language="en"):
+    """This function returns an address as raw from a location
+    will repeat until success"""
+    coordinates = f"{latitude}, {longitude}"
+    try:
+        return geo.reverse(coordinates, language=language, timeout=10).raw
+    except:
+        return get_address_by_location(latitude, longitude)
