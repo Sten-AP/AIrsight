@@ -1,0 +1,22 @@
+[
+  {
+    "country": "Belgium",
+    "code": "BE",
+    "regions": ["Antwerp", "Brussels-Capital", "East Flanders", "Flemish Brabant", "Hainaut", "Liège", "Luxembourg", "Namur", "Walloon Brabant", "West Flanders"]
+  },
+  {
+    "country": "Germany",
+    "code": "DE",
+    "regions": ["North Rhine-Westphalia"]
+  },
+  {
+    "country": "France",
+    "code": "FR",
+    "regions": ["Hauts-de-France"]
+  },
+  {
+    "country": "Netherlands",
+    "code": "NL",
+    "regions": ["Limburg", "Zeeland"]
+  }
+]

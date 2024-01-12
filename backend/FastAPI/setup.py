@@ -19,7 +19,7 @@ TOKEN = getenv("FASTAPI_TOKEN")
 ORG = getenv("FASTAPI_ORG")
 BUCKET = getenv("FASTAPI_BUCKET")
 BASE_QUERY = f"""from(bucket: "{BUCKET}")"""
-PARAMETERS = ["openaq", "wekeo", "prediction"]
+PARAMETERS = ["openaq", "wekeo", "predictions"]
 PARAMETERS_ENUM = Enum("Parameters", {str(i): i for i in PARAMETERS})
 BASE_DIR = path.dirname(__file__)
 
@@ -42,12 +42,9 @@ credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 # -----------Models-----------
-# model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
-# model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
-
-model_pm10 = joblib.load(f"model/saved_models/linear_regression_pm10.joblib")
-model_pm25 = joblib.load(f"model/saved_models/linear_regression_pm25.joblib")
-
+model_no2 = joblib.load(f"{BASE_DIR}/models/linear_regression_no2.joblib")
+model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
+model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
 
 
 # -----------App-settings-----------

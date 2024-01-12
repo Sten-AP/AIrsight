@@ -1,14 +1,13 @@
-from setup import app, write_client, read_api, geo, model_pm10, model_pm25, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
+from setup import app, write_client, read_api, geo, model_no2, model_pm10, model_pm25, ORG, PARAMETERS, PARAMETERS_ENUM, BUCKET, BASE_DIR
 from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
-from functions import get_query, list_all_items
-from pandas import read_json
+from functions import get_query, list_all_items, get_address_by_location
+from pandas import read_json, Timestamp, DataFrame
 from uvicorn import run
 from io import StringIO
 import json
 
-index = 1
 
 # -----------Routes-----------
 @app.post("/api/{param}/new/", tags=["Add item"], summary="Add new data to database")
@@ -32,23 +31,49 @@ async def add_new_data(data: Data, param: PARAMETERS_ENUM):
 
 @app.post("/api/predict/", tags=["Add item"], summary="Get prediction of custom location")
 async def custom_prediction(location: Location):
+    index = f"{int(location.lat*10000)}{int(location.lon*10000)}"
     id = f"request-{index}"
 
-    data = download_data(location.lat, location.lon)
-    prediction_pm10 = model_pm10.predict(data)[0]
-    print(f"Prediction pm10: {prediction_pm10}")
-    prediction_pm25 = model_pm25.predict(data)[0]
-    print(f"Prediction pm2.5: {prediction_pm25}")
+    downloaded_data = download_data(location.lat, location.lon)
+    prediction_no2 = model_no2.predict(downloaded_data)[0]
+    prediction_pm10 = model_pm10.predict(downloaded_data)[0]
+    prediction_pm25 = model_pm25.predict(downloaded_data)[0]
+
+    timestamp = Timestamp.now(tz='UCT').floor('ms')
+    address = get_address_by_location(location.lat, location.lon)['address']
+
+    if address.get("state") is not None:
+        state = address["state"]
+    else:
+        state = address["region"]
+
+    data = {
+        'id': id,
+        'lat': float(location.lat),
+        'lon': float(location.lon),
+        'region': state,
+        'country': address["country"],
+        'country_code': address["country_code"].upper(),
+        'no2': float(prediction_no2),
+        'pm10': float(prediction_pm10),
+        'pm25': float(prediction_pm25),
+        'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z"))
+    }
+
+    data_df = DataFrame([dict(data)]).set_index("time")
     try:
-        # write_client.write(data_df, data_frame_measurement_name=f"prediction", data_frame_tag_columns=['id'])
-        # index += 1
-        return {"message": f"Prediction request succesfully added to database"}
+        write_client.write(data_df, data_frame_measurement_name=f"predictions",
+                           data_frame_tag_columns=['country', 'country_code', 'id', 'region'])
+        return {"message": f"Prediction {id} succesfully added to database"}
     except Exception as e:
-        return {"message": f"error with adding prediction request to database: {e}"}
+        return {"message": f"error with adding prediction {id} to database: {e}"}
 
 
 @app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
 async def locations():
+    locations = json.load(open(f"{BASE_DIR}/locations.json", "r"))
+    return ORJSONResponse(locations, status_code=200)
+
     try:
         query = f"""import "influxdata/influxdb/schema"
                     schema.tagValues(
@@ -103,7 +128,7 @@ async def locations():
                 country_data.update({"code": country_code})
                 country_data.update({"regions": regions})
 
-            data.append({country_name: country_data})
+            data.append(country_data)
         return ORJSONResponse(data, status_code=200)
     except Exception as e:
         return {"error": str(e)}
@@ -170,4 +195,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, proxy_headers=True, forwarded_allow_ips=['*'], reload=True)
+    run("main:app", host="0.0.0.0", port=6000,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
