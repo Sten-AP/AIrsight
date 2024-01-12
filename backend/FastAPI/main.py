@@ -41,12 +41,12 @@ async def custom_prediction(location: Location):
 
     timestamp = Timestamp.now(tz='UCT').floor('ms')
     address = get_address_by_location(location.lat, location.lon)['address']
-    
+
     if address.get("state") is not None:
         state = address["state"]
     else:
         state = address["region"]
-        
+
     data = {
         'id': id,
         'lat': float(location.lat),
@@ -71,6 +71,9 @@ async def custom_prediction(location: Location):
 
 @app.get("/api/locations/", tags=["Latest data"], summary="Get all used locations")
 async def locations():
+    locations = json.load(open(f"{BASE_DIR}/locations.json", "r"))
+    return ORJSONResponse(locations, status_code=200)
+
     try:
         query = f"""import "influxdata/influxdb/schema"
                     schema.tagValues(
@@ -192,4 +195,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=5000,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
