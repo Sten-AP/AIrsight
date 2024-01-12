@@ -125,7 +125,7 @@ async def locations():
                 country_data.update({"code": country_code})
                 country_data.update({"regions": regions})
 
-            data.append({country_name: country_data})
+            data.append(country_data)
         return ORJSONResponse(data, status_code=200)
     except Exception as e:
         return {"error": str(e)}
