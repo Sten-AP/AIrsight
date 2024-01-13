@@ -37,6 +37,12 @@ export default function Page() {
               <Card className="p-0 h-80">
                 <GrafanaFrame panelId={8} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="240h"/>
               </Card>
+              <Card className="p-0 h-80">
+                <GrafanaFrame panelId={9} refreshRate={600} className={"w-full h-full rounded-tremor-default"}/>
+              </Card>
+              <Card className="p-0 h-80">
+                <GrafanaFrame panelId={10} refreshRate={600} className={"w-full h-full rounded-tremor-default"}/>
+              </Card>
             </Grid>
           </TabPanel>
         </TabPanels>
