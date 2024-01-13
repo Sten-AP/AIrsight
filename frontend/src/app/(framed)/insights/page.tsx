@@ -30,11 +30,14 @@ export default function Page() {
             </div>
           </TabPanel>
           <TabPanel>
-            <div className='mt-6'>
-              <Card>
-                <div className='h-96' />
+            <Grid numItemsMd={2} numItemsLg={3} className='gap-6 mt-6'>
+              <Card className="p-0 h-80">
+                <GrafanaFrame panelId={7} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="240h"/>
               </Card>
-            </div>
+              <Card className="p-0 h-80">
+                <GrafanaFrame panelId={8} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="240h"/>
+              </Card>
+            </Grid>
           </TabPanel>
         </TabPanels>
       </TabGroup>
