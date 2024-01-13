@@ -1,40 +1,13 @@
 "use client";
 import { Table, TableHead, TableRow, TableHeaderCell, TableBody, TableCell, Badge, BadgeDelta, Card, Text, Button } from "@tremor/react";
 import { getPredictionData, getSatelliteData, getSensorData } from "@/src/utils/apiUtils";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AirQualityMeasurement } from "@/src/types/AirsightTypes";
 import { differenceInDays, format, formatDistance } from "date-fns";
 import { CSVLink } from "react-csv";
 
-export default function TableDataHub({selectedIndex, startDate, endDate} : {selectedIndex : number, startDate: Date, endDate: Date}) {
-  const [measurementData, setMeasurementData] = useState<AirQualityMeasurement[] | null>([]);
-
-    
-  const getQualityLabel = (pm10: any) => {
-    if (pm10 > 20) {
-      return "Fair";
-    } else if (pm10 > 40) {
-      return "Moderate";
-    } else {
-      return "Good";
-    }
-  };
-  
-  const csvData = [
-    ["ID", "Timestamp", "Country", "Region", "NO2 (µg/m³)", "PM 25 (µg/m³)", "PM 10 (µg/m³)", "Quality"],
-    ...(measurementData || []).map((item) => [
-      item.id,
-      item.time,
-      "Belgium",
-      "Antwerp",
-      item.no2 ? item.no2 : "null",
-      item.pm25 ? item.pm25 : "null",
-      item.pm10 ? item.pm10 : "null",
-      getQualityLabel(item.pm10),
-    ]),
-  ];
-
-
+export default function TableDataHub({selectedIndex, startDate, endDate, measurementData, setMeasurementData} : {selectedIndex : number, startDate: Date, endDate: Date, measurementData: AirQualityMeasurement[] | null, setMeasurementData: Dispatch<SetStateAction<AirQualityMeasurement[] | null>>}) {
+   
   useEffect(() => {
     async function fetchData() {
       try {
@@ -65,9 +38,6 @@ export default function TableDataHub({selectedIndex, startDate, endDate} : {sele
 
   return (
     <>
-    <CSVLink data={csvData} filename="airsight_measurement_data.csv">
-        <Button>Export CSV</Button>
-      </CSVLink>
         <Table className='mt-6'>
           <TableHead>
             <TableRow>

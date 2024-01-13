@@ -4,7 +4,7 @@ import TableDataHub from "./components/tableDataHub";
 import TableHeadActions from "./components/tableHeadActions";
 import { getLocations } from "@/src/utils/apiUtils";
 import { useState, useEffect, SetStateAction } from "react";
-import { Country } from "@/src/types/AirsightTypes";
+import { AirQualityMeasurement, Country } from "@/src/types/AirsightTypes";
 import Information from "./components/information";
 import { sub } from "date-fns";
 
@@ -14,7 +14,8 @@ export default function Page() {
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date>(new Date(Date.now()));
   const [endDate, setEndDate] = useState<Date>(new Date(sub(startDate, {days: 5})));
-  
+  const [measurementData, setMeasurementData] = useState<AirQualityMeasurement[] | null>([]);
+
   useEffect(() => {
     async function fetchLocations() {
       try {
@@ -36,8 +37,8 @@ export default function Page() {
       <Card className='mt-6'>
         {locations ? (
           <>
-            <TableHeadActions locations={locations} setSelectedIndex={setSelectedIndex} selectedIndex={selectedIndex} startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
-            <TableDataHub selectedIndex={selectedIndex} startDate={startDate} endDate={endDate} />
+            <TableHeadActions locations={locations} setSelectedIndex={setSelectedIndex} selectedIndex={selectedIndex} startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} measurementData={measurementData} />
+            <TableDataHub selectedIndex={selectedIndex} startDate={startDate} endDate={endDate} measurementData={measurementData} setMeasurementData={setMeasurementData} />
           </>
         ) : (
           <Text>Getting everything ready</Text>
