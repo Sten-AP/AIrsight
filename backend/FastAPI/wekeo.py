@@ -73,7 +73,6 @@ def conver_dataframe(df):
 
 
 def download_data(lat, lon, days=1):
-    global session
     session = Session()
     if path.exists(DATA_DIR):
         rmtree(DATA_DIR)
@@ -81,8 +80,7 @@ def download_data(lat, lon, days=1):
     date = start_and_end_date(days)
 
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
-    token_response = session.get(
-        f'{WEKEO_URL}/gettoken', headers={'Authorization': f'Basic {credentials}'}).json()
+    token_response = session.get(f'{WEKEO_URL}/gettoken', headers={'Authorization': f'Basic {credentials}'}).json()
     headers = {'Authorization': token_response['access_token']}
 
     query = query_settings(lat, lon, date[0], date[1])
@@ -91,8 +89,8 @@ def download_data(lat, lon, days=1):
     jobId = matches['jobId']
 
     check_status(session, f'{WEKEO_URL}/datarequest/status/{jobId}', headers)
-    results_response = session.get(
-        f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
+    results_response = session.get(f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
+    sleep(2)
 
     print("downloading data")
     for result in results_response['content']:
@@ -100,12 +98,11 @@ def download_data(lat, lon, days=1):
             "jobId": jobId,
             "uri": result['url']
         }
-        order_response = session.post(
-            f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
+        order_response = session.post(f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
+        sleep(2)
 
         check_status(session, f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
-        download_response = session.get(
-            f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)
+        download_response = session.get(f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)
 
         with open(f"{DATA_DIR}/{order_response['orderId']}.nc", 'wb') as f:
             for chunk in download_response.iter_content(chunk_size=8192):

@@ -74,19 +74,20 @@ def download_data(id, lat, lon, days):
     jobId = matches['jobId']
 
     check_status(f'{WEKEO_URL}/datarequest/status/{jobId}', headers)
-    results_response = session.get(
-        f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
-
+    results_response = session.get(f'{WEKEO_URL}/datarequest/jobs/{jobId}/result', headers=headers).json()
+    sleep(2)
+    
     for result in results_response['content']:
         order_data = {
             "jobId": jobId,
             "uri": result['url']
         }
-        order_response = session.post(
-            f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
+        
+        order_response = session.post(f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
+        sleep(2)
 
-        check_status(
-            f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
+        check_status(f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
+            
         download_response = session.get(
             f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)
 
