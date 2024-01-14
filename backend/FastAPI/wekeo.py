@@ -21,11 +21,15 @@ def start_and_end_date(days):
     return [start_date, end_date]
 
 
-def check_status(session, url, headers):
+def check_status(url, headers):
+    global session
     while True:
-        status_response = session.get(url, headers=headers).json()
-        if status_response['status'] == 'completed':
-            break
+        try:
+            status_response = session.get(url, headers=headers).json()
+            if status_response['status'] == 'completed':
+                break
+        except:
+            print("Retry getting response")
         sleep(5)
 
 
@@ -70,6 +74,7 @@ def conver_dataframe(df):
 
 
 def download_data(lat, lon, days=1):
+    global session
     session = Session()
     if path.exists(DATA_DIR):
         rmtree(DATA_DIR)
