@@ -4,10 +4,11 @@ import { getPredictionData, getSatelliteData, getSensorData } from "@/src/utils/
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AirQualityMeasurement } from "@/src/types/AirsightTypes";
 import { differenceInDays, format, formatDistance } from "date-fns";
-import { CSVLink } from "react-csv";
+var numeral = require('numeral');
 
 export default function TableDataHub({selectedIndex, startDate, endDate, measurementData, setMeasurementData} : {selectedIndex : number, startDate: Date, endDate: Date, measurementData: AirQualityMeasurement[] | null, setMeasurementData: Dispatch<SetStateAction<AirQualityMeasurement[] | null>>}) {
-   
+  const [iterMeasurementData, setIterMeasurementData] = useState<AirQualityMeasurement[] | null>([]);
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -16,18 +17,23 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
         const resPred = await getPredictionData(startDate, endDate);
 
         let newData: any[] = [];
+        let iterData: any[] = [];
 
         if (resSensor) {
           newData = [...newData, ...resSensor];
+          iterData = [...iterData, ...resSensor.slice(0, 200)];
         }
         if (resSat) {
           newData = [...newData, ...resSat];
+          iterData = [...iterData, ...resSat.slice(0, 200)];
         }
         if (resPred) {
           newData = [...newData, ...resPred];
+          iterData = [...iterData, ...resPred.slice(0, 200)];
         }
 
         setMeasurementData(newData);
+        setIterMeasurementData(iterData);
       } catch (error) {
         console.error(error);
         setMeasurementData(null);
@@ -36,9 +42,33 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
     fetchData()
   }, [startDate, endDate]);
 
+  let displayedRows = 0;
+  let totalRows;
+
+  if(iterMeasurementData != null && measurementData != null && iterMeasurementData.length > 0 && measurementData.length > 0) {
+    displayedRows = iterMeasurementData.filter(m => {
+      if(selectedIndex != 0) {
+        return m.type.valueOf() == selectedIndex - 1
+      } else {
+        return true
+      }
+    }).length;
+
+    totalRows = measurementData.filter(m => {
+      if(selectedIndex != 0) {
+        return m.type.valueOf() == selectedIndex - 1
+      } else {
+        return true
+      }
+    }).length;
+  }
+
   return (
     <>
-        <Table className='mt-6'>
+    <Text className="mt-6 px-4">
+      {`${numeral(displayedRows).format('0,0')} of ${numeral(totalRows).format('0,0')} rows`}
+    </Text>
+        <Table className='mt-1'>
           <TableHead>
             <TableRow>
               <TableHeaderCell>Type</TableHeaderCell>
@@ -53,8 +83,8 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
           </TableHead>
 
           <TableBody>
-            {measurementData != null && measurementData.length > 0 ? (
-              measurementData.filter(m => {
+            {iterMeasurementData != null && iterMeasurementData.length > 0 ? (
+              iterMeasurementData.filter(m => {
                 if(selectedIndex != 0) {
                   return m.type.valueOf() == selectedIndex - 1
                 } else {
@@ -95,7 +125,7 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
               })
             ) : (
               <TableRow>
-                <TableCell>{measurementData != null ? <Badge color='blue'>Loading...</Badge> : <Badge color='red'>Try again later</Badge>}</TableCell>
+                <TableCell>{iterMeasurementData != null ? <Badge color='blue'>Loading...</Badge> : <Badge color='red'>Try again later</Badge>}</TableCell>
               </TableRow>
             )}
           </TableBody>
