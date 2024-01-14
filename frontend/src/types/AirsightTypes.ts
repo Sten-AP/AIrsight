@@ -9,6 +9,9 @@ export interface AirQualityMeasurement {
   time: Date;
   lat: number;
   lon: number;
+  country: string;
+  code: string;
+  region: string;
   no2: number;
   o3: number;
   pm10: number;
@@ -27,6 +30,9 @@ export interface Measurement {
   pm10: number;
   pm25: number;
   so2: number;
+  country: string;
+  code: string;
+  region: string;
   type: MeasurementType;
 }
 
@@ -41,6 +47,9 @@ export interface WekeoSensorMeasurement {
   pm10_conc: number;
   pm2p5_conc: number;
   so2_conc: number;
+  country: string;
+  code: string;
+  region: string;
 }
 
 export function serializeMeasurement(data: Measurement, measurementType: MeasurementType): AirQualityMeasurement {
@@ -54,6 +63,9 @@ export function serializeMeasurement(data: Measurement, measurementType: Measure
     pm10: data.pm10,
     pm25: data.pm25,
     so2: data.so2,
+    country: data.country,
+    code: data.code,
+    region: data.region,
     type: measurementType,
   };
 }
@@ -69,6 +81,9 @@ export function serializeWekeoData(data: WekeoSensorMeasurement): AirQualityMeas
     pm10: data.pm10_conc,
     pm25: data.pm2p5_conc,
     so2: data.so2_conc,
+    country: data.country,
+    code: data.code,
+    region: data.region,
     type: MeasurementType.Satellite,
   };
 }
