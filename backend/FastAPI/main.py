@@ -135,10 +135,13 @@ async def locations():
 
 
 @app.get("/api/{param}/", tags=["Latest data"], summary="Get all latest data from all items from used parameter")
-async def data_by_param(param: PARAMETERS_ENUM, dates: Dates = None):
+async def data_by_param(param: PARAMETERS_ENUM, start_date=None, stop_date=None, dates: Dates = None):
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
+
+    if start_date != None and stop_date != None and dates == None:
+        dates = Dates(start_date, stop_date)
 
     try:
         query = get_query(param=param, dates=dates)
@@ -149,11 +152,14 @@ async def data_by_param(param: PARAMETERS_ENUM, dates: Dates = None):
 
 
 @app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"], summary="Get data from used parameter, filtered by id")
-async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, dates: Dates = None):
+async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date=None, stop_date=None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
+
+    if start_date != None and stop_date != None and dates == None:
+        dates = Dates(start_date, stop_date)
 
     try:
         query = get_query(param=param, id=id, dates=dates)
@@ -164,11 +170,16 @@ async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, dates: Dates
 
 
 @app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"], summary="Get specific data from used parameter, filtered by id")
-async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, dates: Dates = None):
+async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, start_date=None, stop_date=None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
+
+    if start_date != None and stop_date != None and dates == None:
+        dates = Dates
+        dates.start_date = start_date
+        dates.stop_date = stop_date
 
     try:
         query = get_query(param=param, id=id, data=data, dates=dates)
@@ -179,4 +190,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=5000,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
