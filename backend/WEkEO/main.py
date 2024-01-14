@@ -59,8 +59,8 @@ def check_status(url, headers):
 
 
 def download_data(id, lat, lon, days):
-    session.post(f"{API_URL}/predict/", json={"lat": lat, "lon": lon})
     global index
+    session.post(f"{API_URL}/predict/?sensor_id={id}", json={"lat": lat, "lon": lon})
     date = start_and_end_date(days)
 
     print(f"[>] {date[0]} -> {date[1]} [<] searching lat: {lat}, lon: {lon}")
@@ -146,7 +146,7 @@ def post_data(start_date):
             wekeo_json = DataFrame(wekeo).to_json(orient="split")
             try:
                 print(session.post(
-                    f"{API_URL}/wekeo/new/?sensor_id={id_dir}", json={"data": wekeo_json}).json())
+                    f"{API_URL}/wekeo/new/", json={"data": wekeo_json}).json())
             except Exception as e:
                 print(f"Error posting data: {e}")
 
