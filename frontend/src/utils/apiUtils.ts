@@ -12,7 +12,7 @@ export async function getSensorData(startDate: Date, endDate: Date): Promise<Air
       stop_date: formatDateToString(endDate),
     };
 
-    const response = await axios.get("https://airsight.cloudsin.space/api/openaq", {
+    const response = await axios.get("https://airsight.cloudsin.space/api/openaq/", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,7 +40,7 @@ export async function getSatelliteData(startDate: Date, endDate: Date): Promise<
       stop_date: formatDateToString(endDate),
     };
 
-    const response = await axios.get("https://airsight.cloudsin.space/api/wekeo", {
+    const response = await axios.get("https://airsight.cloudsin.space/api/wekeo/", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -68,7 +68,7 @@ export async function getPredictionData(startDate: Date, endDate: Date): Promise
       stop_date: formatDateToString(endDate),
     };
 
-    const response = await axios.get("https://airsight.cloudsin.space/api/predictions", {
+    const response = await axios.get("https://airsight.cloudsin.space/api/predictions/", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -91,7 +91,7 @@ export async function getPredictionData(startDate: Date, endDate: Date): Promise
 
 export async function getLocations(): Promise<Country[] | null> {
   try {
-    const response = await axios.get("https://airsight.cloudsin.space/api/locations", {
+    const response = await axios.get("https://airsight.cloudsin.space/api/locations/", {
       headers: {
         "Content-Type": "application/json",
       },

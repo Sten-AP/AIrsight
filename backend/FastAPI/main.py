@@ -2,7 +2,7 @@ from setup import app, write_client, read_api, geo, model_no2, model_pm10, model
 from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
-from functions import get_query, list_all_items, get_address_by_location
+from functions import get_query, list_all_items, get_address_by_location, check_dates
 from pandas import read_json, Timestamp, DataFrame
 from uvicorn import run
 from io import StringIO
@@ -135,13 +135,15 @@ async def locations():
 
 
 @app.get("/api/{param}/", tags=["Latest data"], summary="Get all latest data from all items from used parameter")
-async def data_by_param(param: PARAMETERS_ENUM):
+async def data_by_param(param: PARAMETERS_ENUM, start_date: str = None, stop_date: str = None, dates: Dates = None):
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
+    dates = check_dates(start_date, stop_date, dates)
+
     try:
-        query = get_query(param)
+        query = get_query(param=param, dates=dates)
         response = read_api.query(query, org=ORG)
         return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
@@ -149,51 +151,38 @@ async def data_by_param(param: PARAMETERS_ENUM):
 
 
 @app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"], summary="Get data from used parameter, filtered by id")
-async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, dates: Dates = None):
+async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date: str = None, stop_date: str = None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
-    if dates != None:
-        start_date = f"{dates.start_date}Z"
-        stop_date = f"{dates.stop_date}Z"
-    else:
-        start_date = None
-        stop_date = None
+    dates = check_dates(start_date, stop_date, dates)
 
     try:
-        query = get_query(param=param, id=id,
-                          start_date=start_date, stop_date=stop_date)
+        query = get_query(param=param, id=id, dates=dates)
         response = read_api.query(query, org=ORG)
-        return ORJSONResponse(list_all_items(response, start_date, stop_date), status_code=200)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
 
 @app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"], summary="Get specific data from used parameter, filtered by id")
-async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, dates: Dates = None):
+async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, start_date: str = None, stop_date: str = None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
-    if dates != None:
-        start_date = f"{dates.start_date}Z"
-        stop_date = f"{dates.stop_date}Z"
-    else:
-        start_date = None
-        stop_date = None
+    dates = check_dates(start_date, stop_date, dates)
 
     try:
-        query = get_query(param=param, id=id, data=data,
-                          start_date=start_date, stop_date=stop_date)
+        query = get_query(param=param, id=id, data=data, dates=dates)
         response = read_api.query(query, org=ORG)
-        return ORJSONResponse(list_all_items(response, start_date, stop_date), status_code=200)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000,
-        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
