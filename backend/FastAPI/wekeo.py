@@ -99,7 +99,7 @@ def download_data(lat, lon, days=1):
             "uri": result['url']
         }
         order_response = session.post(f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
-        sleep(2)
+        sleep(5)
 
         check_status(session, f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
         download_response = session.get(f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)

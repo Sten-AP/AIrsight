@@ -84,7 +84,7 @@ def download_data(id, lat, lon, days):
         }
         
         order_response = session.post(f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
-        sleep(2)
+        sleep(5)
 
         check_status(f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
             
