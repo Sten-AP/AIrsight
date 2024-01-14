@@ -145,8 +145,7 @@ async def data_by_param(param: PARAMETERS_ENUM, start_date: str = None, stop_dat
     try:
         query = get_query(param=param, dates=dates)
         response = read_api.query(query, org=ORG)
-        print(response)
-        return ORJSONResponse(list_all_items(response, dates), status_code=200)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
@@ -163,7 +162,7 @@ async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date: 
     try:
         query = get_query(param=param, id=id, dates=dates)
         response = read_api.query(query, org=ORG)
-        return ORJSONResponse(list_all_items(response, dates), status_code=200)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
@@ -180,10 +179,11 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
     try:
         query = get_query(param=param, id=id, data=data, dates=dates)
         response = read_api.query(query, org=ORG)
-        return ORJSONResponse(list_all_items(response, dates), status_code=200)
+        return ORJSONResponse(list_all_items(response), status_code=200)
     except Exception as e:
         return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=8)
+    run("main:app", host="0.0.0.0", port=5000,
+        proxy_headers=True, forwarded_allow_ips=['*'], reload=True)

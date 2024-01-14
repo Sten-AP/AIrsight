@@ -1,5 +1,5 @@
 from pandas import Timestamp
-from setup import BASE_QUERY, geo
+from setup import BASE_QUERY, BUCKET, ORG, read_api, geo
 from classes import Dates
 
 # -----------Functions-----------
@@ -31,49 +31,19 @@ def check_dates(start_date, stop_date, dates):
     return output_dates
 
 
-def list_all_items(response, dates):
-    start_date, stop_date = dates.start_date, dates.stop_date
-
+def list_all_items(response):
     data = []
-    records = []
-    item_ids = []
     for table in response:
         for record in table.records:
-            records.append(record)
-            if record.values["id"] not in item_ids:
-                item_ids.append(record.values["id"])
-
-    if start_date == None and stop_date == None:
-        for id in item_ids:
             item = {}
-            for record in records:
-                item.update({"id": id})
-                item.update({"time": record["_time"]})
-                if id == record.values["id"]:
-                    item.update({record.get_field(): record.get_value()})
+            for value in record.values:
+                if value not in ["result", "table"]:
+                    if record.values[value] is not None:
+                        if value == '_time':
+                            item.update({"time": record.values[value]})
+                        else:
+                            item.update({value: record.values[value]})
             data.append(item)
-        return data
-
-    start_date = str(Timestamp(start_date, tz='UCT')).replace(" ", "T")
-    stop_date = str(Timestamp(stop_date, tz='UCT')).replace(" ", "T")
-
-    times = []
-    for record in records:
-        if record['_time'] not in times:
-            times.append(record['_time'])
-
-    for id in item_ids:
-        for time in times:
-            item = {}
-            for record in records:
-                if time == record["_time"]:
-                    item.update({'id': id})
-                    item.update(
-                        {'time': str(record['_time']).replace(" ", "T")})
-                    if id == record.values["id"]:
-                        item.update({record.get_field(): record.get_value()})
-                    if item not in data:
-                        data.append(item)
     return data
 
 
@@ -96,7 +66,11 @@ def get_query(param, dates, id=None, data=None):
     if start_date != None and stop_date != None:
         time_filter = f"""|> range(start: {start_date}, stop: {stop_date})"""
 
-    return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter
+    test_filter = f"""|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+                      |> group()
+                      |> drop(columns: ["_start", "_stop", "_measurement",])"""
+
+    return BASE_QUERY + time_filter + measurement_filter + id_filter + data_filter + test_filter
 
 
 def get_address_by_location(latitude, longitude, language="en"):
