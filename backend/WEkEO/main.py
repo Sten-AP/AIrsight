@@ -144,10 +144,9 @@ def post_data(start_date):
                 wekeo.append(data_dict)
 
             wekeo_json = DataFrame(wekeo).to_json(orient="split")
-            sensor_id = {"sensor_id": id_dir}
             try:
                 print(session.post(
-                    f"{API_URL}/wekeo/new/", json={"data": wekeo_json}, params=sensor_id).json())
+                    f"{API_URL}/wekeo/new/?sensor_id={id_dir}", json={"data": wekeo_json}).json())
             except Exception as e:
                 print(f"Error posting data: {e}")
 
