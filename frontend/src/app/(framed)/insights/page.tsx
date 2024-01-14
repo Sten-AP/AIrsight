@@ -16,10 +16,13 @@ export default function Page() {
           <TabPanel>
             <Grid numItemsMd={2} numItemsLg={3} className='gap-6 mt-6'>
               <Card className="p-0 h-80">
-                <GrafanaFrame panelId={7} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="240h"/>
+                <GrafanaFrame panelId={7} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="48h"/>
               </Card>
               <Card className="p-0 h-80">
-                <GrafanaFrame panelId={8} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="240h"/>
+                <GrafanaFrame panelId={8} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="48h"/>
+              </Card>
+              <Card className="p-0 h-80">
+                <GrafanaFrame panelId={11} refreshRate={600} className={"w-full h-full rounded-tremor-default"} timeFrame="48h"/>
               </Card>
             </Grid>
           </TabPanel>

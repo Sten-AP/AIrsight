@@ -110,8 +110,8 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
                     <TableCell>
                       {differenceInDays(new Date(), date) <= 3 ? formatDistance(date, new Date(), { addSuffix: true }) : format(date, 'dd-MM-yyyy hh:mm')}
                     </TableCell>
-                    <TableCell className='text-right'>Belgium</TableCell>
-                    <TableCell className='text-right'>Antwerp</TableCell>
+                    <TableCell className='text-right'>{item.country ? item.country : "N/A"}</TableCell>
+                    <TableCell className='text-right'>{item.region ? item.region : "N/A"}</TableCell>
                     <TableCell className='text-right'>{item.no2 ? item.no2.toFixed(2) : "N/A"}</TableCell>
                     <TableCell className='text-right'>{item.pm25 ? item.pm25.toFixed(2) : "N/A"}</TableCell>
                     <TableCell className='text-right'>{item.pm10 ? item.pm10.toFixed(2) : "N/A"}</TableCell>
