@@ -3,7 +3,7 @@ from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
 from functions import get_query, list_all_items, get_address_by_location, check_dates
-from pandas import read_json, Timestamp, DataFrame
+from pandas import read_json, Timestamp, DataFrame, DateOffset
 from uvicorn import run
 from io import StringIO
 import json
@@ -60,7 +60,7 @@ async def custom_prediction(location: Location, sensor_id: str = None):
         'no2': float(prediction_no2),
         'pm10': float(prediction_pm10),
         'pm25': float(prediction_pm25),
-        'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z"))
+        'time': str(Timestamp(f"{timestamp.date()}T{timestamp.hour}:00:00.000Z") - DateOffset(days=1))
     }
 
     data_df = DataFrame([dict(data)]).set_index("time")
@@ -188,4 +188,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=6000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=6000,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
