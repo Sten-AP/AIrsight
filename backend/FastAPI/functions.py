@@ -1,5 +1,6 @@
 from pandas import Timestamp
 from setup import BASE_QUERY, geo
+from classes import Dates
 
 # -----------Functions-----------
 def records(response):
@@ -10,17 +11,23 @@ def records(response):
     return data
 
 
-def check_dates(dates):
-    if dates != None:
-        start_date = f"{dates.start_date}Z"
-        stop_date = f"{dates.stop_date}Z"
+def check_dates(start_date, stop_date, dates):
+    dates = Dates
+    
+    if start_date != None and stop_date != None and dates == None:
+        dates.start_date = start_date
+        dates.stop_date = stop_date
+    elif dates != None:
+        dates.start_date = f"{dates.start_date}Z"
+        dates.stop_date = f"{dates.stop_date}Z"
     else:
-        start_date = None
-        stop_date = None
-    return start_date, stop_date
+        dates.start_date = None
+        dates.stop_date = None
+        
+    return dates
 
 def list_all_items(response, dates):
-    start_date, stop_date = check_dates(dates)
+    start_date, stop_date = dates.start_date, dates.stop_date
     
     data = []
     records = []
@@ -65,7 +72,7 @@ def list_all_items(response, dates):
 
 
 def get_query(param, dates, id=None, data=None):
-    start_date, stop_date = check_dates(dates)
+    start_date, stop_date = dates.start_date, dates.stop_date
 
     if param in ["wekeo", "openaq"]:
         param += "sensor"

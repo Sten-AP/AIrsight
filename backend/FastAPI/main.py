@@ -2,7 +2,7 @@ from setup import app, write_client, read_api, geo, model_no2, model_pm10, model
 from wekeo import download_data
 from fastapi.responses import ORJSONResponse
 from classes import Data, Dates, Location
-from functions import get_query, list_all_items, get_address_by_location
+from functions import get_query, list_all_items, get_address_by_location, check_dates
 from pandas import read_json, Timestamp, DataFrame
 from uvicorn import run
 from io import StringIO
@@ -140,9 +140,8 @@ async def data_by_param(param: PARAMETERS_ENUM, start_date=None, stop_date=None,
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
-    if start_date != None and stop_date != None and dates == None:
-        dates = Dates(start_date, stop_date)
-
+    dates = check_dates(start_date, stop_date, dates)
+        
     try:
         query = get_query(param=param, dates=dates)
         response = read_api.query(query, org=ORG)
@@ -158,8 +157,7 @@ async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date=N
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
-    if start_date != None and stop_date != None and dates == None:
-        dates = Dates(start_date, stop_date)
+    dates = check_dates(start_date, stop_date, dates)
 
     try:
         query = get_query(param=param, id=id, dates=dates)
@@ -176,10 +174,7 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
-    if start_date != None and stop_date != None and dates == None:
-        dates = Dates
-        dates.start_date = start_date
-        dates.stop_date = stop_date
+    dates = check_dates(start_date, stop_date, dates)
 
     try:
         query = get_query(param=param, id=id, data=data, dates=dates)
@@ -190,5 +185,4 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000,
-        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=5000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
