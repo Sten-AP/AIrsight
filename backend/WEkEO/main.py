@@ -51,10 +51,10 @@ def check_status(url, headers):
     while True:
         try:
             status_response = session.get(url, headers=headers).json()
+            if status_response['status'] == 'completed':
+                break
         except:
             print("Retry getting response")
-        if status_response['status'] == 'completed':
-            break
         sleep(5)
 
 
