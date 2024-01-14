@@ -17,6 +17,9 @@ def check_dates(start_date, stop_date, dates):
     output_dates = Dates
 
     if start_date != None and stop_date != None and dates == None:
+        if start_date == stop_date:
+            stop_date = stop_date.split("T")[0] + "T23:00:00"
+
         output_dates.start_date = start_date
         output_dates.stop_date = stop_date
     elif dates != None:
