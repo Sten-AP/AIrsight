@@ -91,7 +91,7 @@ export async function getPredictionData(startDate: Date, endDate: Date): Promise
 
 export async function getLocations(): Promise<Country[] | null> {
   try {
-    const response = await axios.get("https://airsight.cloudsin.space/api/locations", {
+    const response = await axios.get("https://airsight.cloudsin.space/api/locations/", {
       headers: {
         "Content-Type": "application/json",
       },
