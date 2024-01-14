@@ -42,10 +42,13 @@ credentials = base64.b64encode(f"{USERNAME}:{PASSWORD}".encode()).decode()
 
 
 # -----------Models-----------
-model_no2 = joblib.load(f"{BASE_DIR}/models/linear_regression_no2.joblib")
-model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
-model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
+# model_no2 = joblib.load(f"{BASE_DIR}/models/linear_regression_no2.joblib")
+# model_pm10 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm10.joblib")
+# model_pm25 = joblib.load(f"{BASE_DIR}/models/linear_regression_pm25.joblib")
 
+model_no2 = 0
+model_pm10 = 0
+model_pm25 = 0
 
 # -----------App-settings-----------
 app = FastAPI(
