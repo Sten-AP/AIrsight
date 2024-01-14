@@ -13,7 +13,7 @@ export default function Page() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date>(new Date(Date.now()));
-  const [endDate, setEndDate] = useState<Date>(new Date(sub(startDate, {days: 5})));
+  const [endDate, setEndDate] = useState<Date>(new Date(Date.now()));
   const [measurementData, setMeasurementData] = useState<AirQualityMeasurement[] | null>([]);
 
   useEffect(() => {
