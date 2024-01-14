@@ -135,13 +135,13 @@ async def locations():
 
 
 @app.get("/api/{param}/", tags=["Latest data"], summary="Get all latest data from all items from used parameter")
-async def data_by_param(param: PARAMETERS_ENUM, start_date=None, stop_date=None, dates: Dates = None):
+async def data_by_param(param: PARAMETERS_ENUM, start_date: str = None, stop_date: str = None, dates: Dates = None):
     param = param.value
     if param not in PARAMETERS:
         return {"error": "parameter does not match"}
 
     dates = check_dates(start_date, stop_date, dates)
-        
+
     try:
         query = get_query(param=param, dates=dates)
         response = read_api.query(query, org=ORG)
@@ -151,7 +151,7 @@ async def data_by_param(param: PARAMETERS_ENUM, start_date=None, stop_date=None,
 
 
 @app.get("/api/{param}/{id}/", tags=["Specific data (with timestamps)"], summary="Get data from used parameter, filtered by id")
-async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date=None, stop_date=None, dates: Dates = None):
+async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date: str = None, stop_date: str = None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
@@ -168,7 +168,7 @@ async def all_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, start_date=N
 
 
 @app.get("/api/{param}/{id}/{data}/", tags=["Specific data (with timestamps)"], summary="Get specific data from used parameter, filtered by id")
-async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, start_date=None, stop_date=None, dates: Dates = None):
+async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: str, start_date: str = None, stop_date: str = None, dates: Dates = None):
     # TIME FILTER FORMAT FOR REQUEST: 2023-11-15T12:00:00
     param = param.value
     if param not in PARAMETERS:
@@ -185,4 +185,5 @@ async def specific_data_by_param_and_id(param: PARAMETERS_ENUM, id: str, data: s
 
 
 if __name__ == "__main__":
-    run("main:app", host="0.0.0.0", port=5000, proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
+    run("main:app", host="0.0.0.0", port=6000,
+        proxy_headers=True, forwarded_allow_ips=['*'], workers=2)
