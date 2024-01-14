@@ -84,8 +84,9 @@ def download_data(lat, lon, days=1):
     headers = {'Authorization': token_response['access_token']}
 
     query = query_settings(lat, lon, date[0], date[1])
-    matches = session.post(f'{WEKEO_URL}/datarequest',
-                           headers=headers, json=query).json()
+    matches = session.post(f'{WEKEO_URL}/datarequest', headers=headers, json=query).json()
+    sleep(2)
+
     jobId = matches['jobId']
 
     check_status(session, f'{WEKEO_URL}/datarequest/status/{jobId}', headers)
