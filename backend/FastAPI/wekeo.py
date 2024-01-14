@@ -21,8 +21,7 @@ def start_and_end_date(days):
     return [start_date, end_date]
 
 
-def check_status(url, headers):
-    global session
+def check_status(session, url, headers):
     while True:
         try:
             status_response = session.get(url, headers=headers).json()
@@ -104,8 +103,7 @@ def download_data(lat, lon, days=1):
         order_response = session.post(
             f'{WEKEO_URL}/dataorder', headers=headers, json=order_data).json()
 
-        check_status(
-            session, f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
+        check_status(session, f'{WEKEO_URL}/dataorder/status/{order_response["orderId"]}', headers)
         download_response = session.get(
             f'{WEKEO_URL}/dataorder/download/{order_response["orderId"]}', headers=headers, stream=True)
 
