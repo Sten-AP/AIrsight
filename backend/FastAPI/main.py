@@ -30,7 +30,7 @@ async def add_new_data(data: Data, param: PARAMETERS_ENUM):
 
 
 @app.post("/api/predict/", tags=["Add item"], summary="Get prediction of custom location")
-async def custom_prediction(location: Location):
+async def custom_prediction(location: Location, sensor_id: str = None):
     index = f"{int(location.lat*10000)}{int(location.lon*10000)}"
     id = f"request-{index}"
 
@@ -46,6 +46,9 @@ async def custom_prediction(location: Location):
         state = address["state"]
     else:
         state = address["region"]
+
+    if sensor_id:
+        id = sensor_id
 
     data = {
         'id': id,
