@@ -8,6 +8,7 @@ var numeral = require('numeral');
 
 export default function TableDataHub({selectedIndex, startDate, endDate, measurementData, setMeasurementData} : {selectedIndex : number, startDate: Date, endDate: Date, measurementData: AirQualityMeasurement[] | null, setMeasurementData: Dispatch<SetStateAction<AirQualityMeasurement[] | null>>}) {
   const [iterMeasurementData, setIterMeasurementData] = useState<AirQualityMeasurement[] | null>([]);
+  let timer: NodeJS.Timeout;
 
   useEffect(() => {
     async function fetchData() {
@@ -31,7 +32,8 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
           newData = [...newData, ...resPred];
           iterData = [...iterData, ...resPred.slice(0, 200)];
         }
-
+        setMeasurementData([]);
+        setIterMeasurementData([]);
         setMeasurementData(newData);
         setIterMeasurementData(iterData);
       } catch (error) {
@@ -39,7 +41,13 @@ export default function TableDataHub({selectedIndex, startDate, endDate, measure
         setMeasurementData(null);
       }
     }
-    fetchData()
+
+    timer = setTimeout(() => {
+      fetchData();
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+
   }, [startDate, endDate]);
 
   let displayedRows = 0;
